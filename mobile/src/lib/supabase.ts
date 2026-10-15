@@ -1,11 +1,12 @@
 import "react-native-url-polyfill/auto";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import Constants from "expo-constants";
 import { createClient } from "@supabase/supabase-js";
 
-const extra = Constants.expoConfig?.extra ?? {};
-const supabaseUrl = extra.supabaseUrl as string | undefined;
-const supabaseAnonKey = extra.supabaseAnonKey as string | undefined;
+// Metro inline ces variables EXPO_PUBLIC_* au moment du build (web et natif).
+// Contrairement a Constants.expoConfig.extra, ca fonctionne de facon fiable
+// sur toutes les plateformes, y compris `expo start --web`.
+const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
   console.warn(

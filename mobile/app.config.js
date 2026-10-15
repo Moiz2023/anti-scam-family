@@ -1,6 +1,7 @@
-// app.config.js (plutot que app.json) pour pouvoir injecter les variables
-// d'environnement Supabase dans `extra` au moment du build/start.
-require("dotenv").config({ path: __dirname + "/../.env" });
+// app.config.js (plutot que app.json). Les variables EXPO_PUBLIC_* utilisees
+// par l'app (voir src/lib/supabase.ts) sont chargees automatiquement par
+// Expo CLI depuis le fichier .env a la racine du repo (../.env depuis ce
+// dossier) — pas besoin de les reprendre ici.
 
 module.exports = {
   expo: {
@@ -29,9 +30,5 @@ module.exports = {
       favicon: "./assets/favicon.png",
     },
     plugins: ["expo-notifications"],
-    extra: {
-      supabaseUrl: process.env.SUPABASE_URL ?? process.env.EXPO_PUBLIC_SUPABASE_URL,
-      supabaseAnonKey: process.env.SUPABASE_ANON_KEY ?? process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
-    },
   },
 };
