@@ -33,11 +33,17 @@ scripts/eval.mjs           script d'evaluation : appelle /analyze sur les 30 mes
 
 ```bash
 cp .env.example .env
+cp .env.example mobile/.env
 ```
 
-Remplis `.env` a la racine. En local, lance d'abord Supabase (etape 2) : les valeurs
-`SUPABASE_URL`, `SUPABASE_ANON_KEY` et `SUPABASE_SERVICE_ROLE_KEY` sont affichees dans le
-terminal par `supabase start`.
+Remplis les deux fichiers (memes valeurs). `.env` a la racine est utilise par les scripts
+CLI (`scripts/eval.mjs`, `supabase functions serve`) ; `mobile/.env` est necessaire car Expo
+CLI charge les `EXPO_PUBLIC_*` depuis le dossier du projet mobile, pas depuis la racine du
+repo. En local, lance d'abord Supabase (etape 2) : les valeurs `SUPABASE_URL` /
+`EXPO_PUBLIC_SUPABASE_URL`, `SUPABASE_ANON_KEY` / `EXPO_PUBLIC_SUPABASE_ANON_KEY` et
+`SUPABASE_SERVICE_ROLE_KEY` sont affichees dans le terminal par `supabase start`
+(ne jamais mettre la `service_role` key dans une variable `EXPO_PUBLIC_*`, elle serait
+visible cote client).
 
 ## 2. Lancer Supabase en local
 
@@ -111,8 +117,16 @@ npm install
 npm run start
 ```
 
-Scanne le QR code avec Expo Go (Android) ou l'app Camera (iOS). L'app lit `SUPABASE_URL` /
-`SUPABASE_ANON_KEY` depuis `.env` a la racine via `app.config.js`.
+Scanne le QR code avec Expo Go (Android) ou l'app Camera (iOS). L'app lit
+`EXPO_PUBLIC_SUPABASE_URL` / `EXPO_PUBLIC_SUPABASE_ANON_KEY` depuis `mobile/.env` (voir
+etape 1 — ne pas oublier de le creer, c'est different du `.env` racine).
+
+Previsualisation rapide dans un navigateur (sans telephone, utile pour verifier l'UI) :
+
+```bash
+cd mobile
+npx expo start --web
+```
 
 Flux a tester :
 1. Creer un compte (Register) — deux ecrans Login/Register, Supabase Auth email+mdp.
