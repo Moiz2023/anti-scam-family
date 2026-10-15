@@ -1,0 +1,272 @@
+[
+  {
+    "id": "scam-01",
+    "category": "family_impersonation",
+    "lang": "fr",
+    "text": "Maman c'est moi, j'ai casse mon telephone et j'utilise ce nouveau numero. Tu peux m'envoyer 2800e aujourd'hui meme, c'est urgent, je t'explique ce soir. Ne dis rien a papa pour l'instant.",
+    "sender": "+32470112233",
+    "link": null,
+    "expectedNiveau": "danger"
+  },
+  {
+    "id": "scam-02",
+    "category": "family_impersonation_nl",
+    "lang": "nl",
+    "text": "Mama, dit is mijn nieuw nummer, mijn telefoon is kapot. Kan je nu dringend 1500 euro overschrijven? Ik leg het straks uit, zeg het nog niet aan papa.",
+    "sender": "+32478556677",
+    "link": null,
+    "expectedNiveau": "danger"
+  },
+  {
+    "id": "scam-03",
+    "category": "bank_phishing",
+    "lang": "fr",
+    "text": "KBC: Votre carte a ete bloquee suite a une activite suspecte. Confirmez votre identite immediatement via ce lien pour eviter la suspension definitive de votre compte.",
+    "sender": "KBC-Alert",
+    "link": "http://kbc-secure-verify.com/confirm",
+    "expectedNiveau": "danger"
+  },
+  {
+    "id": "scam-04",
+    "category": "card_stop_phishing",
+    "lang": "fr",
+    "text": "Card Stop: une tentative de paiement suspecte a ete detectee sur votre carte. Appelez immediatement ce numero et communiquez votre code de confirmation pour bloquer la fraude.",
+    "sender": "CardStop",
+    "link": null,
+    "expectedNiveau": "danger"
+  },
+  {
+    "id": "scam-05",
+    "category": "bpost_smishing",
+    "lang": "fr",
+    "text": "bpost: votre colis est bloque en douane, des frais de 2,49e sont dus. Payez immediatement via ce lien sinon le colis sera renvoye.",
+    "sender": "bpost",
+    "link": "http://bit.ly/bpost-frais-douane",
+    "expectedNiveau": "danger"
+  },
+  {
+    "id": "scam-06",
+    "category": "bpost_smishing_nl",
+    "lang": "nl",
+    "text": "bpost: uw pakket is geblokkeerd, betaal nu 2,49 euro via onderstaande link om verzending te hervatten.",
+    "sender": "bpost",
+    "link": "http://bit.ly/bpost-kosten",
+    "expectedNiveau": "danger"
+  },
+  {
+    "id": "scam-07",
+    "category": "spf_finances",
+    "lang": "fr",
+    "text": "SPF Finances: vous avez un remboursement d'impots de 647e en attente. Cliquez ici et communiquez vos coordonnees bancaires completes pour le recevoir aujourd'hui.",
+    "sender": "SPF-Finances",
+    "link": "http://spf-finances-remboursement.net",
+    "expectedNiveau": "danger"
+  },
+  {
+    "id": "scam-08",
+    "category": "itsme_phishing",
+    "lang": "fr",
+    "text": "itsme: votre compte sera suspendu dans 1 heure. Communiquez votre code de confirmation recu par SMS pour eviter la suspension immediatement.",
+    "sender": "itsme-support",
+    "link": null,
+    "expectedNiveau": "danger"
+  },
+  {
+    "id": "scam-09",
+    "category": "crypto_investment",
+    "lang": "fr",
+    "text": "Bonjour, suite a notre conversation, investis maintenant 1000e en bitcoin sur cette plateforme, le rendement garanti est de 30% ce mois-ci. Fais vite avant la cloture des inscriptions.",
+    "sender": "+32460998877",
+    "link": "http://crypto-invest-be.top",
+    "expectedNiveau": "danger"
+  },
+  {
+    "id": "scam-10",
+    "category": "gift_card_boss",
+    "lang": "fr",
+    "text": "Bonjour, je suis en reunion et ne peux pas parler. J'ai besoin que tu achetes 5 cartes cadeaux Amazon de 100e chacune en urgence pour un client, envoie-moi les codes par SMS. Je te rembourse demain.",
+    "sender": "+32490334455",
+    "link": null,
+    "expectedNiveau": "danger"
+  },
+  {
+    "id": "scam-11",
+    "category": "proximus_phishing",
+    "lang": "fr",
+    "text": "Proximus: votre facture n'a pas pu etre prelevee, votre ligne sera coupee aujourd'hui. Regularisez immediatement via ce lien et entrez votre code de carte bancaire.",
+    "sender": "Proximus",
+    "link": "http://proximus-facture-regul.info",
+    "expectedNiveau": "danger"
+  },
+  {
+    "id": "scam-12",
+    "category": "parking_qr",
+    "lang": "fr",
+    "text": "Amende de stationnement impayee: 25e dus. Payez immediatement via ce lien pour eviter une majoration de 150e.",
+    "sender": "Parking-BE",
+    "link": "http://192.168.45.12/amende-parking",
+    "expectedNiveau": "danger"
+  },
+  {
+    "id": "scam-13",
+    "category": "lottery",
+    "lang": "fr",
+    "text": "Felicitations! Vous avez gagne 25000e a la loterie europeenne. Pour reclamer votre gain, envoyez vos informations bancaires completes et une copie de votre carte d'identite avant ce soir.",
+    "sender": "EuroLottery",
+    "link": "http://euro-lottery-claim.net",
+    "expectedNiveau": "danger"
+  },
+  {
+    "id": "scam-14",
+    "category": "grandchild_in_trouble",
+    "lang": "fr",
+    "text": "Allo mamie c'est moi, j'ai eu un accident de voiture et je dois payer la caution sinon je vais en prison. Peux-tu m'envoyer 3000e maintenant via western union, je ne peux pas t'expliquer plus au telephone.",
+    "sender": "+32465221144",
+    "link": null,
+    "expectedNiveau": "danger"
+  },
+  {
+    "id": "scam-15",
+    "category": "romance_moderate",
+    "lang": "fr",
+    "text": "Mon amour, j'ai enfin obtenu mon visa pour venir te voir mais il me manque 450e pour le billet d'avion. Peux-tu m'aider cette semaine s'il te plait, je te rembourserai des que j'arrive.",
+    "sender": "+32499887766",
+    "link": null,
+    "expectedNiveau": "attention"
+  },
+  {
+    "id": "scam-16",
+    "category": "unusual_new_beneficiary",
+    "lang": "fr",
+    "text": "Bonjour, nouveau fournisseur ici, merci de regler la facture jointe sur ce nouveau compte IBAN BE71 0961 2345 6769, le changement vient d'avoir lieu suite a notre restructuration.",
+    "sender": "comptabilite@fournisseur-pro.com",
+    "link": null,
+    "expectedNiveau": "attention"
+  },
+  {
+    "id": "scam-17",
+    "category": "energy_bill_nl",
+    "lang": "nl",
+    "text": "Uw energiefactuur kon niet worden afgeschreven. Regel dit dringend via deze link om afsluiting te vermijden en voer uw kaartgegevens in.",
+    "sender": "Energie-BE",
+    "link": "http://energie-be-betaling.net",
+    "expectedNiveau": "danger"
+  },
+  {
+    "id": "scam-18",
+    "category": "soft_urgency_but_vague",
+    "lang": "fr",
+    "text": "Salut, j'ai un petit souci, tu peux me rappeler des que possible stp c'est un peu urgent.",
+    "sender": "+32475001122",
+    "link": null,
+    "expectedNiveau": "faible"
+  },
+  {
+    "id": "legit-01",
+    "category": "bank_notification",
+    "lang": "fr",
+    "text": "BNP Paribas Fortis: votre solde est de 1 245,30e au 14/10. Ceci est une notification automatique, aucune action requise.",
+    "sender": "BNPPF",
+    "link": null,
+    "expectedNiveau": "faible"
+  },
+  {
+    "id": "legit-02",
+    "category": "itsme_login_notice",
+    "lang": "fr",
+    "text": "itsme: une connexion a ete effectuee sur votre compte depuis un nouvel appareil le 14/10 a 9h12. Si ce n'est pas vous, consultez l'application itsme directement.",
+    "sender": "itsme",
+    "link": null,
+    "expectedNiveau": "faible"
+  },
+  {
+    "id": "legit-03",
+    "category": "bpost_tracking",
+    "lang": "fr",
+    "text": "bpost: votre colis n° 3SBE00123456 est en cours de livraison et arrivera demain entre 10h et 13h. Suivez-le sur bpost.be.",
+    "sender": "bpost",
+    "link": "https://track.bpost.be/btr/web/#/search?itemCode=3SBE00123456",
+    "expectedNiveau": "faible"
+  },
+  {
+    "id": "legit-04",
+    "category": "family_dinner",
+    "lang": "fr",
+    "text": "Coucou maman, on vient diner dimanche avec les enfants vers 18h si ca te va toujours, bisous!",
+    "sender": "+32470998811",
+    "link": null,
+    "expectedNiveau": "faible"
+  },
+  {
+    "id": "legit-05",
+    "category": "doctor_appointment",
+    "lang": "fr",
+    "text": "Rappel: vous avez rendez-vous avec le Dr. Peeters le 17/10 a 14h30. Merci de prevenir au moins 24h a l'avance en cas d'empechement.",
+    "sender": "CabinetPeeters",
+    "link": null,
+    "expectedNiveau": "faible"
+  },
+  {
+    "id": "legit-06",
+    "category": "telenet_invoice",
+    "lang": "nl",
+    "text": "Telenet: uw factuur van oktober is beschikbaar in de app en bedraagt 54,99 euro. Deze wordt automatisch afgeschreven op 20/10.",
+    "sender": "Telenet",
+    "link": null,
+    "expectedNiveau": "faible"
+  },
+  {
+    "id": "legit-07",
+    "category": "school_message",
+    "lang": "fr",
+    "text": "Ecole communale: reunion de parents le mardi 21/10 a 17h en salle polyvalente. Merci de confirmer votre presence via le carnet de correspondance.",
+    "sender": "Ecole-Les-Tilleuls",
+    "link": null,
+    "expectedNiveau": "faible"
+  },
+  {
+    "id": "legit-08",
+    "category": "friend_casual",
+    "lang": "fr",
+    "text": "Hey, tu es dispo ce weekend pour un cafe? Ca fait longtemps qu'on ne s'est pas vus!",
+    "sender": "+32472334455",
+    "link": null,
+    "expectedNiveau": "faible"
+  },
+  {
+    "id": "legit-09",
+    "category": "pharmacy_reminder",
+    "lang": "fr",
+    "text": "Votre commande de medicaments est prete a etre retiree en pharmacie jusqu'a vendredi 18h.",
+    "sender": "Pharmacie-Centrale",
+    "link": null,
+    "expectedNiveau": "faible"
+  },
+  {
+    "id": "legit-10",
+    "category": "real_invoice_known_supplier",
+    "lang": "fr",
+    "text": "Bonjour, voici votre facture habituelle d'entretien chaudiere de 180e, a payer sous 30 jours sur notre compte habituel comme d'habitude. Merci.",
+    "sender": "chauffage-dupont@entreprise.be",
+    "link": null,
+    "expectedNiveau": "faible"
+  },
+  {
+    "id": "legit-11",
+    "category": "mutual_fund_statement",
+    "lang": "fr",
+    "text": "Votre releve trimestriel est disponible dans votre espace client. Aucune action n'est requise de votre part.",
+    "sender": "Belfius",
+    "link": null,
+    "expectedNiveau": "faible"
+  },
+  {
+    "id": "legit-12",
+    "category": "gym_renewal",
+    "lang": "nl",
+    "text": "Uw jaarlijks abonnement loopt af op 30/11. U kunt het eenvoudig verlengen via de app, geen directe actie nodig.",
+    "sender": "FitClub",
+    "link": null,
+    "expectedNiveau": "faible"
+  }
+]

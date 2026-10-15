@@ -1,0 +1,171 @@
+// Regles/heuristiques independantes du LLM. Objectif : un signal explicable,
+// deterministe, qui fonctionne meme si l'appel LLM echoue ou n'est pas
+// configure (pas de cle API en dev).
+
+export interface AnalyzeInput {
+  text: string;
+  sender?: string;
+  link?: string;
+}
+
+export interface HeuristicResult {
+  heuristicScore: number; // 0-100
+  raisons: string[];
+}
+
+const URGENCY_WORDS = [
+  "urgent", "urgence", "immediatement", "immédiatement", "aujourd'hui meme",
+  "aujourd'hui même", "maintenant", "vite", "tres vite", "très vite",
+  "dans l'heure", "derniere chance", "dernière chance",
+  "dringend", "onmiddellijk", "nu meteen",
+];
+
+const MONEY_WORDS = [
+  "virement", "vire-moi", "vire moi", "envoie-moi", "envoie moi",
+  "iban", "carte cadeau", "carte-cadeau", "cartes cadeaux", "cartes-cadeaux",
+  "gift card", "bitcoin", "crypto", "cryptomonnaie", "western union",
+  "mandat cash", "overschrijving", "stortkaart", "cadeaukaart",
+];
+
+const CREDENTIAL_WORDS = [
+  "code itsme", "code de confirmation", "code secret", "ton code",
+  "votre code", "numero de carte", "numéro de carte", "cvv", "cvv-code",
+  "mot de passe", "wachtwoord", "pincode", "code pin", "kaartgegevens",
+  "coordonnees bancaires", "coordonnées bancaires", "informations bancaires",
+  "donnees bancaires", "données bancaires", "numero de compte complet",
+];
+
+const IDENTITY_DOCUMENT_WORDS = [
+  "carte d'identite", "carte d'identité", "copie de votre carte",
+  "copie de passeport", "copie du passeport", "scan de votre carte",
+];
+
+const BENEFICIARY_CHANGE_WORDS = [
+  "nouveau compte", "nouveau beneficiaire", "nouveau bénéficiaire",
+  "changement de compte", "nouvelles coordonnees bancaires",
+  "nouvelles coordonnées bancaires", "nouveau iban",
+  "modifie nos coordonnees", "modifie nos coordonnées",
+];
+
+const IMPERSONATION_WORDS = [
+  "nouveau numero", "nouveau numéro", "c'est moi", "ne me reconnais pas",
+  "j'ai change de numero", "j'ai changé de numéro", "nieuw nummer",
+];
+
+const SECRECY_WORDS = [
+  "ne dis a personne", "ne dis à personne", "garde ca secret",
+  "garde ça secret", "ne previens pas", "ne préviens pas",
+  "niet vertellen", "geheim houden",
+];
+
+const AUTHORITY_IMPERSONATION_WORDS = [
+  "spf finances", "impots", "impôts", "carte stop", "card stop",
+  "votre banque", "service fraude", "bpost", "itsme support",
+  "fraudedienst", "fod financien", "proximus", "telenet",
+];
+
+const SUSPICIOUS_LINK_WORDS = [
+  "secure", "verify", "confirm", "update", "account", "login",
+  "remboursement", "douane", "frais", "amende", "facture", "betaling",
+  "paiement", "regul",
+];
+
+const SUSPICIOUS_LINK_PATTERNS = [
+  /bit\.ly/i, /tinyurl/i, /t\.co\//i, /is\.gd/i, /goo\.gl/i,
+  /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/, // IP address as host
+  /\.(top|xyz|work|click|quest|support|live|gq|tk|cf|ml|ga)(\/|$)/i,
+];
+
+function containsAny(haystack: string, needles: string[]): string[] {
+  const lower = haystack.toLowerCase();
+  return needles.filter((n) => lower.includes(n.toLowerCase()));
+}
+
+function isSuspiciousLink(link: string): boolean {
+  const lower = link.toLowerCase();
+  if (SUSPICIOUS_LINK_PATTERNS.some((p) => p.test(lower))) return true;
+  return SUSPICIOUS_LINK_WORDS.some((w) => lower.includes(w));
+}
+
+export function computeHeuristics(input: AnalyzeInput): HeuristicResult {
+  const raisons: string[] = [];
+  let score = 0;
+
+  const text = input.text ?? "";
+
+  const urgency = containsAny(text, URGENCY_WORDS);
+  if (urgency.length > 0) {
+    score += 20;
+    raisons.push("Le message insiste sur l'urgence (\"" + urgency[0] + "\")");
+  }
+
+  const money = containsAny(text, MONEY_WORDS);
+  if (money.length > 0) {
+    score += 25;
+    raisons.push("Demande d'argent, de carte-cadeau ou de cryptomonnaie detectee");
+  }
+
+  const credentials = containsAny(text, CREDENTIAL_WORDS);
+  if (credentials.length > 0) {
+    score += 30;
+    raisons.push("Demande de code, mot de passe ou coordonnees bancaires : aucune banque ne demande ca par message");
+  }
+
+  const identityDoc = containsAny(text, IDENTITY_DOCUMENT_WORDS);
+  if (identityDoc.length > 0) {
+    score += 20;
+    raisons.push("Demande d'une copie de piece d'identite : signal frequent d'usurpation");
+  }
+
+  const beneficiaryChange = containsAny(text, BENEFICIARY_CHANGE_WORDS);
+  if (beneficiaryChange.length > 0) {
+    score += 20;
+    raisons.push("Changement de compte/beneficiaire annonce par message : a verifier par un autre canal");
+  }
+
+  const impersonation = containsAny(text, IMPERSONATION_WORDS);
+  if (impersonation.length > 0) {
+    score += 25;
+    raisons.push("Le message pretend venir d'un proche avec un nouveau numero inconnu");
+  }
+
+  const secrecy = containsAny(text, SECRECY_WORDS);
+  if (secrecy.length > 0) {
+    score += 20;
+    raisons.push("Le message demande de garder la demande secrete : signal classique de manipulation");
+  }
+
+  const authority = containsAny(text, AUTHORITY_IMPERSONATION_WORDS);
+  if (authority.length > 0) {
+    score += 10;
+    raisons.push("Le message pretend venir d'une banque, administration ou service connu");
+  }
+
+  const suspiciousLink = Boolean(input.link) && isSuspiciousLink(input.link!);
+  if (suspiciousLink) {
+    score += 25;
+    raisons.push("Le lien partage utilise un domaine ou format suspect (raccourcisseur, mots-cles de verification, extension inhabituelle)");
+  }
+
+  if (urgency.length > 0 && credentials.length > 0) {
+    score += 20;
+    raisons.push("Combinaison urgence + demande de code/coordonnees : signature classique de phishing");
+  }
+
+  if (urgency.length > 0 && money.length > 0) {
+    score += 15;
+    raisons.push("Combinaison urgence + demande d'argent : signature classique d'arnaque");
+  }
+
+  if (authority.length > 0 && suspiciousLink) {
+    score += 20;
+    raisons.push("Message pretendant venir d'une marque/administration connue avec un lien non officiel");
+  }
+
+  if (input.sender && /^\+?\d[\d\s]{6,}$/.test(input.sender) && impersonation.length > 0) {
+    raisons.push("Le numero d'expediteur ne correspond a aucun contact connu");
+    score += 10;
+  }
+
+  return { heuristicScore: Math.min(100, score), raisons };
+}
