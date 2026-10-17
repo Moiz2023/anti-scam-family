@@ -45,7 +45,26 @@ repo. En local, lance d'abord Supabase (etape 2) : les valeurs `SUPABASE_URL` /
 (ne jamais mettre la `service_role` key dans une variable `EXPO_PUBLIC_*`, elle serait
 visible cote client).
 
-## 2. Lancer Supabase en local
+## 2. Backend Supabase — cloud (recommande pour tester sur telephone)
+
+Un projet cloud existe deja : **"Anti-scam_family"**, ref `ulkhlgbdlhcfeujxbreq`, region
+eu-central-1. Le schema SQL et les 3 Edge Functions y sont deployes. `.env` et
+`mobile/.env` pointent dessus par defaut — rien a faire pour un premier test.
+
+Pour re-deployer apres une modification du code :
+
+```bash
+npx supabase login              # une seule fois ; ouvre le navigateur pour autoriser le CLI
+npx supabase link --project-ref ulkhlgbdlhcfeujxbreq   # une seule fois par machine
+npx supabase db push            # applique les migrations modifiees/ajoutees
+npx supabase functions deploy   # redeploie les 3 fonctions
+```
+
+Sur Windows, si `npx` refuse de s'executer dans PowerShell ("l'execution de scripts est
+desactivee"), utilise `npx.cmd` a la place de `npx` — ca contourne le probleme sans toucher
+aux parametres de securite du systeme.
+
+### 2bis. Backend Supabase — local (alternatif, pour iterer sans toucher au cloud)
 
 ```bash
 npx supabase start
@@ -66,7 +85,9 @@ npx supabase functions serve --env-file .env
 
 `supabase start` necessite Docker Desktop demarre (le moteur Postgres/Auth/Storage tourne
 dans des conteneurs). Sans Docker disponible, voir la section 4bis ci-dessous pour tester le
-moteur de detection sans dependance a Supabase.
+moteur de detection sans dependance a Supabase. Pour re-basculer `.env`/`mobile/.env` sur le
+local, remets `SUPABASE_URL=http://127.0.0.1:54321` et les cles affichees par `supabase
+start`.
 
 ## 3. Cle Claude (Anthropic) — moteur d'analyse
 
@@ -75,7 +96,7 @@ heuristiques seules (regles de mots-cles, domaines suspects...). Pour activer la
 classification + explications par Claude, ajoute `ANTHROPIC_API_KEY` dans `.env` (utilise
 automatiquement par `supabase functions serve --env-file .env` en local).
 
-En production (apres `supabase link`) :
+Sur le projet cloud (deja linke, voir etape 2) :
 
 ```bash
 npx supabase secrets set ANTHROPIC_API_KEY=sk-ant-...
