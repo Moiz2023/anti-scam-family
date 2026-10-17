@@ -19,20 +19,6 @@ create policy "profiles_select_own"
   on public.profiles for select
   using (id = auth.uid());
 
-create policy "profiles_select_linked"
-  -- un proche (protecteur) peut voir le profil des personnes qu'il protege, et inversement
-  on public.profiles for select
-  using (
-    exists (
-      select 1 from public.family_links fl
-      where fl.status = 'active'
-        and (
-          (fl.protector_id = auth.uid() and fl.protected_id = profiles.id)
-          or (fl.protected_id = auth.uid() and fl.protector_id = profiles.id)
-        )
-    )
-  );
-
 create policy "profiles_upsert_own"
   on public.profiles for insert
   with check (id = auth.uid());
@@ -79,6 +65,21 @@ create policy "family_links_select_participant"
 create policy "family_links_update_participant"
   on public.family_links for update
   using (protector_id = auth.uid() or protected_id = auth.uid());
+
+-- Un proche (protecteur) peut voir le profil des personnes qu'il protege, et
+-- inversement. Definie ici (apres family_links) car elle en depend.
+create policy "profiles_select_linked"
+  on public.profiles for select
+  using (
+    exists (
+      select 1 from public.family_links fl
+      where fl.status = 'active'
+        and (
+          (fl.protector_id = auth.uid() and fl.protected_id = profiles.id)
+          or (fl.protected_id = auth.uid() and fl.protector_id = profiles.id)
+        )
+    )
+  );
 
 -- Fonction securisee pour accepter un code d'invitation (le proche l'appelle).
 -- Evite de donner un droit d'insertion libre sur family_links.
