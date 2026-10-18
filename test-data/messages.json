@@ -286,5 +286,113 @@
     "sender": "BNP Paribas Fortis",
     "link": null,
     "expectedNiveau": "faible"
+  },
+  {
+    "id": "legit-15",
+    "category": "friend_split_bill",
+    "lang": "fr",
+    "text": "Salut, tu peux me renvoyer les 18e du resto d'hier stp? Via Payconiq c'est plus simple :)",
+    "sender": "+32478223344",
+    "link": null,
+    "expectedNiveau": "faible"
+  },
+  {
+    "id": "legit-16",
+    "category": "school_trip_payment",
+    "lang": "fr",
+    "text": "Rappel : merci de verser 25e pour la sortie scolaire de 4eme avant vendredi, sur le compte habituel de l'ecole (voir carnet de correspondance pour les details).",
+    "sender": "Ecole Les Tilleuls",
+    "link": null,
+    "expectedNiveau": "faible"
+  },
+  {
+    "id": "legit-17",
+    "category": "real_appointment_booking_link",
+    "lang": "fr",
+    "text": "Votre rendez-vous chez Dr. Janssens est confirme pour le 22/10 a 10h. Besoin de modifier ? Cliquez ici : https://www.doctolib.be/confirm/8x92j",
+    "sender": "Doctolib",
+    "link": "https://www.doctolib.be/confirm/8x92j",
+    "expectedNiveau": "faible"
+  },
+  {
+    "id": "legit-18",
+    "category": "real_courier_tracking",
+    "lang": "fr",
+    "text": "Votre colis DPD arrivera demain entre 14h et 16h. Suivez la livraison : https://tracking.dpd.be/parcel/BE9988776655",
+    "sender": "DPD",
+    "link": "https://tracking.dpd.be/parcel/BE9988776655",
+    "expectedNiveau": "faible"
+  },
+  {
+    "id": "legit-19",
+    "category": "carrier_topup_confirmation",
+    "lang": "nl",
+    "text": "Uw beltegoed van 15 euro werd succesvol opgeladen. Saldo: 23,40 euro.",
+    "sender": "Telenet",
+    "link": null,
+    "expectedNiveau": "faible"
+  },
+  {
+    "id": "legit-20",
+    "category": "colleague_shared_doc_link",
+    "lang": "fr",
+    "text": "Salut, voici le lien vers le rapport qu'on a discute : https://docs.google.com/document/d/1aBcD2efGh. N'hesite pas si questions.",
+    "sender": "+32475667788",
+    "link": "https://docs.google.com/document/d/1aBcD2efGh",
+    "expectedNiveau": "faible"
+  },
+  {
+    "id": "legit-21",
+    "category": "partner_grocery_money_request",
+    "lang": "fr",
+    "text": "Coucou, tu peux me faire un virement de 40e pour les courses stp ? Je te l'ai dit ce matin.",
+    "sender": "+32470112299",
+    "link": null,
+    "expectedNiveau": "faible"
+  },
+  {
+    "id": "legit-22",
+    "category": "real_charity_donation",
+    "lang": "fr",
+    "text": "Merci de soutenir la Croix-Rouge cette annee. Faites un don via croix-rouge.be/don. Chaque euro compte.",
+    "sender": "Croix-Rouge de Belgique",
+    "link": "https://www.croix-rouge.be/don",
+    "expectedNiveau": "faible"
+  },
+  {
+    "id": "scam-19",
+    "category": "fake_tech_support",
+    "lang": "fr",
+    "text": "ALERTE MICROSOFT : Un virus a ete detecte sur votre PC. Appelez immediatement le +32 2 588 00 12 pour eviter la perte de vos donnees. Ne pas eteindre l'ordinateur.",
+    "sender": "Microsoft Support",
+    "link": null,
+    "expectedNiveau": "danger"
+  },
+  {
+    "id": "scam-20",
+    "category": "fake_job_advance_fee",
+    "lang": "fr",
+    "text": "Felicitations, vous etes selectionne pour un poste de teleconseiller a domicile, salaire 1800e/mois. Pour finaliser votre dossier, un virement de 150e est requis pour le materiel de formation. Repondez vite, places limitees.",
+    "sender": "+32460112233",
+    "link": null,
+    "expectedNiveau": "attention"
+  },
+  {
+    "id": "scam-21",
+    "category": "fake_dhl_customs_fee",
+    "lang": "fr",
+    "text": "DHL : Votre colis est en attente de dedouanement. Des frais de 3,99e sont a regler via ce lien avant demain.",
+    "sender": "DHL",
+    "link": "http://dhl-frais-douane-be.top",
+    "expectedNiveau": "danger"
+  },
+  {
+    "id": "scam-22",
+    "category": "whatsapp_new_number_nl",
+    "lang": "nl",
+    "text": "Hallo, dit is mijn nieuw nummer, mijn oude gsm is kapot. Kan je me 500 euro doorsturen via Payconiq? Ik leg het straks uit.",
+    "sender": "+32499887711",
+    "link": null,
+    "expectedNiveau": "danger"
   }
 ]
