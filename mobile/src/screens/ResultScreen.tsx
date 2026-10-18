@@ -10,7 +10,7 @@ import {
   spacing,
   shadow,
 } from "../theme/colors";
-import { requestFamilyCheck } from "../lib/api";
+import { requestFamilyCheck, submitAnalysisFeedback } from "../lib/api";
 import ScoreGauge from "../components/ScoreGauge";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { AppStackParamList } from "../navigation/RootNavigator";
@@ -26,9 +26,21 @@ const NIVEAU_ICON = {
 export default function ResultScreen({ route, navigation }: Props) {
   const { result, isPhoneCheck, readOnly } = route.params;
   const [sending, setSending] = useState(false);
+  const [feedbackState, setFeedbackState] = useState<"idle" | "choosing" | "sent">("idle");
   const niveauColor = colorForNiveau(result.niveau);
   const softColor = softColorForNiveau(result.niveau);
   const isRisky = result.niveau !== "faible";
+
+  async function handleFeedback(type: "too_strict" | "too_lenient") {
+    if (!result.id) return;
+    try {
+      await submitAnalysisFeedback(result.id, type);
+      setFeedbackState("sent");
+    } catch (err) {
+      Alert.alert("Erreur", "Impossible d'envoyer ton signalement pour le moment.");
+      console.error(err);
+    }
+  }
 
   async function handleFamilyCheck() {
     if (!result.id) {
@@ -108,6 +120,30 @@ export default function ResultScreen({ route, navigation }: Props) {
         </Pressable>
       )}
 
+      {result.id && (
+        <View style={styles.feedbackBlock}>
+          {feedbackState === "sent" ? (
+            <Text style={styles.feedbackSentText}>Merci, ton signalement a été envoyé.</Text>
+          ) : feedbackState === "choosing" ? (
+            <>
+              <Text style={styles.feedbackPrompt}>Ce résultat te semble incorrect ?</Text>
+              <View style={styles.feedbackRow}>
+                <Pressable style={styles.feedbackButton} onPress={() => handleFeedback("too_strict")}>
+                  <Text style={styles.feedbackButtonText}>Trop sévère</Text>
+                </Pressable>
+                <Pressable style={styles.feedbackButton} onPress={() => handleFeedback("too_lenient")}>
+                  <Text style={styles.feedbackButtonText}>Pas assez sévère</Text>
+                </Pressable>
+              </View>
+            </>
+          ) : (
+            <Pressable onPress={() => setFeedbackState("choosing")}>
+              <Text style={styles.feedbackLink}>Ce résultat te semble incorrect ?</Text>
+            </Pressable>
+          )}
+        </View>
+      )}
+
       <Pressable style={styles.doneButton} onPress={() => navigation.popToTop()}>
         <Text style={styles.doneButtonText}>Terminer</Text>
       </Pressable>
@@ -167,4 +203,17 @@ const styles = StyleSheet.create({
   familyButtonText: { color: "#fff", fontSize: 16, fontWeight: "700" },
   doneButton: { marginTop: spacing.lg, paddingVertical: spacing.md, alignItems: "center" },
   doneButtonText: { color: colors.textMuted, fontSize: 14, fontWeight: "600" },
+  feedbackBlock: { marginTop: spacing.xl, alignItems: "center" },
+  feedbackLink: { color: colors.textMuted, fontSize: 12.5, textDecorationLine: "underline" },
+  feedbackPrompt: { color: colors.textMuted, fontSize: 12.5, marginBottom: spacing.sm },
+  feedbackRow: { flexDirection: "row", gap: spacing.sm },
+  feedbackButton: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.pill,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+  },
+  feedbackButtonText: { color: colors.text, fontSize: 12.5, fontWeight: "600" },
+  feedbackSentText: { color: colors.faible, fontSize: 12.5, fontWeight: "600" },
 });

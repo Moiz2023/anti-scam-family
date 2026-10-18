@@ -21,6 +21,25 @@ export async function analyzeMessage(input: {
   return data as AnalyzeResult;
 }
 
+export async function submitAnalysisFeedback(
+  analysisEventId: string,
+  feedbackType: "too_strict" | "too_lenient",
+  comment?: string,
+) {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("not_authenticated");
+
+  const { error } = await supabase.from("analysis_feedback").insert({
+    analysis_event_id: analysisEventId,
+    reported_by: user.id,
+    feedback_type: feedbackType,
+    comment: comment ?? null,
+  });
+  if (error) throw error;
+}
+
 export async function requestFamilyCheck(analysisEventId: string) {
   const { data, error } = await supabase.functions.invoke("family-check", {
     body: { analysisEventId },
