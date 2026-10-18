@@ -1,8 +1,11 @@
 import React, { useEffect } from "react";
 import { View, Text, Pressable, StyleSheet, ScrollView } from "react-native";
-import { colors } from "../theme/colors";
+import { LinearGradient } from "expo-linear-gradient";
+import { Ionicons } from "@expo/vector-icons";
+import { colors, gradients, radius, spacing } from "../theme/colors";
 import { supabase } from "../lib/supabase";
 import { registerForPushNotifications } from "../lib/notifications";
+import GradientButton from "../components/GradientButton";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { AppStackParamList } from "../navigation/RootNavigator";
 
@@ -16,75 +19,95 @@ export default function HomeScreen({ navigation }: Props) {
   }, []);
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Anti-Scam Family</Text>
-      <Text style={styles.subtitle}>
-        Nous detectons et signalons des signaux de risque. Pas de garantie de securite
-        absolue : en cas de doute, verifiez toujours avec votre famille.
-      </Text>
+    <ScrollView style={{ backgroundColor: colors.background }} contentContainerStyle={styles.container}>
+      <LinearGradient colors={gradients.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.hero}>
+        <View style={styles.heroBadge}>
+          <Ionicons name="shield-checkmark" size={22} color="#fff" />
+        </View>
+        <Text style={styles.heroTitle}>Anti-Scam Family</Text>
+        <Text style={styles.heroSubtitle}>
+          Nous détectons et signalons des signaux de risque — jamais une garantie absolue de
+          sécurité. En cas de doute, vérifiez toujours avec votre famille.
+        </Text>
+      </LinearGradient>
 
-      <Pressable
-        style={[styles.bigButton, { backgroundColor: colors.primary }]}
-        onPress={() => navigation.navigate("Check")}
-      >
-        <Text style={styles.bigButtonLabel}>CHECK</Text>
-        <Text style={styles.bigButtonSub}>Verifier un message recu</Text>
-      </Pressable>
-
-      <Pressable
-        style={[styles.bigButton, { backgroundColor: colors.attention }]}
-        onPress={() => navigation.navigate("CallFamily")}
-      >
-        <Text style={styles.bigButtonLabel}>CALL FAMILY</Text>
-        <Text style={styles.bigButtonSub}>Appeler un proche maintenant</Text>
-      </Pressable>
-
-      <Pressable
-        style={[styles.bigButton, { backgroundColor: colors.help }]}
-        onPress={() => navigation.navigate("Help")}
-      >
-        <Text style={styles.bigButtonLabel}>HELP</Text>
-        <Text style={styles.bigButtonSub}>J'ai un doute ou j'ai deja paye</Text>
-      </Pressable>
+      <View style={styles.buttons}>
+        <GradientButton
+          icon="search"
+          label="CHECK"
+          sublabel="Vérifier un message reçu"
+          gradientColors={gradients.check}
+          onPress={() => navigation.navigate("Check")}
+        />
+        <GradientButton
+          icon="call"
+          label="CALL FAMILY"
+          sublabel="Appeler un proche maintenant"
+          gradientColors={gradients.callFamily}
+          onPress={() => navigation.navigate("CallFamily")}
+        />
+        <GradientButton
+          icon="help-buoy"
+          label="HELP"
+          sublabel="J'ai un doute ou j'ai déjà payé"
+          gradientColors={gradients.help}
+          onPress={() => navigation.navigate("Help")}
+        />
+      </View>
 
       <Pressable style={styles.secondaryButton} onPress={() => navigation.navigate("Family")}>
-        <Text style={styles.secondaryButtonText}>Ma famille / proches lies</Text>
+        <Ionicons name="people" size={18} color={colors.brand} />
+        <Text style={styles.secondaryButtonText}>Ma famille / proches liés</Text>
+        <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
       </Pressable>
 
       <Pressable style={styles.logout} onPress={() => supabase.auth.signOut()}>
-        <Text style={styles.logoutText}>Se deconnecter</Text>
+        <Text style={styles.logoutText}>Se déconnecter</Text>
       </Pressable>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flexGrow: 1, backgroundColor: colors.background, padding: 24, paddingTop: 48 },
-  title: { fontSize: 26, fontWeight: "700", color: colors.text, textAlign: "center" },
-  subtitle: {
-    fontSize: 13,
-    color: colors.textMuted,
-    textAlign: "center",
-    marginTop: 8,
-    marginBottom: 32,
+  container: { flexGrow: 1, paddingBottom: spacing.xxl },
+  hero: {
+    paddingTop: 64,
+    paddingBottom: spacing.xxl,
+    paddingHorizontal: spacing.xl,
+    borderBottomLeftRadius: radius.lg,
+    borderBottomRightRadius: radius.lg,
   },
-  bigButton: {
-    borderRadius: 16,
-    paddingVertical: 24,
+  heroBadge: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.md,
+    backgroundColor: "rgba(255,255,255,0.18)",
     alignItems: "center",
-    marginBottom: 16,
+    justifyContent: "center",
+    marginBottom: spacing.md,
   },
-  bigButtonLabel: { color: "#fff", fontSize: 24, fontWeight: "800", letterSpacing: 1 },
-  bigButtonSub: { color: "#fff", fontSize: 13, marginTop: 4, opacity: 0.9 },
+  heroTitle: { fontSize: 28, fontWeight: "800", color: "#fff" },
+  heroSubtitle: {
+    fontSize: 13.5,
+    color: "rgba(255,255,255,0.88)",
+    marginTop: spacing.sm,
+    lineHeight: 19,
+  },
+  buttons: { padding: spacing.xl, gap: spacing.lg },
   secondaryButton: {
-    marginTop: 8,
-    paddingVertical: 14,
-    borderRadius: 10,
+    marginHorizontal: spacing.xl,
+    marginTop: spacing.sm,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.lg,
+    borderRadius: radius.md,
+    flexDirection: "row",
     alignItems: "center",
+    gap: spacing.sm,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
   },
-  secondaryButtonText: { color: colors.text, fontSize: 15, fontWeight: "600" },
-  logout: { marginTop: 24, alignItems: "center" },
+  secondaryButtonText: { flex: 1, color: colors.text, fontSize: 15, fontWeight: "600" },
+  logout: { marginTop: spacing.xl, alignItems: "center" },
   logoutText: { color: colors.textMuted, fontSize: 13 },
 });

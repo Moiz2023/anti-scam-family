@@ -1,16 +1,33 @@
 import React, { useState } from "react";
-import { View, Text, Pressable, StyleSheet, Alert, ActivityIndicator } from "react-native";
-import { colorForNiveau, labelForNiveau, colors } from "../theme/colors";
+import { View, Text, Pressable, StyleSheet, Alert, ActivityIndicator, ScrollView } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import {
+  colorForNiveau,
+  softColorForNiveau,
+  labelForNiveau,
+  colors,
+  radius,
+  spacing,
+  shadow,
+} from "../theme/colors";
 import { requestFamilyCheck } from "../lib/api";
+import ScoreGauge from "../components/ScoreGauge";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { AppStackParamList } from "../navigation/RootNavigator";
 
 type Props = NativeStackScreenProps<AppStackParamList, "Result">;
 
+const NIVEAU_ICON = {
+  danger: "warning" as const,
+  attention: "alert-circle" as const,
+  faible: "checkmark-circle" as const,
+};
+
 export default function ResultScreen({ route, navigation }: Props) {
   const { result } = route.params;
   const [sending, setSending] = useState(false);
   const niveauColor = colorForNiveau(result.niveau);
+  const softColor = softColorForNiveau(result.niveau);
   const isRisky = result.niveau !== "faible";
 
   async function handleFamilyCheck() {
@@ -44,32 +61,37 @@ export default function ResultScreen({ route, navigation }: Props) {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={[styles.scoreCircle, { borderColor: niveauColor }]}>
-        <Text style={[styles.scoreNumber, { color: niveauColor }]}>{result.score}</Text>
-        <Text style={styles.scoreMax}>/100</Text>
+    <ScrollView style={{ backgroundColor: colors.background }} contentContainerStyle={styles.container}>
+      <View style={[styles.gaugeCard, { backgroundColor: softColor }]}>
+        <ScoreGauge score={result.score} color={niveauColor} />
+        <View style={styles.niveauRow}>
+          <Ionicons name={NIVEAU_ICON[result.niveau]} size={20} color={niveauColor} />
+          <Text style={[styles.niveau, { color: niveauColor }]}>{labelForNiveau(result.niveau)}</Text>
+        </View>
+        {result.niveau === "danger" && (
+          <Text style={styles.warning}>Ne payez pas avant vérification familiale.</Text>
+        )}
       </View>
 
-      <Text style={[styles.niveau, { color: niveauColor }]}>{labelForNiveau(result.niveau)}</Text>
-
-      {result.niveau === "danger" && (
-        <Text style={styles.warning}>Ne payez pas avant verification familiale.</Text>
-      )}
-
-      <Text style={styles.sectionTitle}>Pourquoi ce score ?</Text>
-      {result.raisons.map((raison, idx) => (
-        <View key={idx} style={styles.raisonRow}>
-          <Text style={styles.raisonBullet}>•</Text>
-          <Text style={styles.raisonText}>{raison}</Text>
-        </View>
-      ))}
+      <View style={styles.reasonsCard}>
+        <Text style={styles.sectionTitle}>Pourquoi ce score ?</Text>
+        {result.raisons.map((raison, idx) => (
+          <View key={idx} style={styles.raisonRow}>
+            <View style={[styles.raisonDot, { backgroundColor: niveauColor }]} />
+            <Text style={styles.raisonText}>{raison}</Text>
+          </View>
+        ))}
+      </View>
 
       {isRisky && (
         <Pressable style={styles.familyButton} onPress={handleFamilyCheck} disabled={sending}>
           {sending ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <Text style={styles.familyButtonText}>Verifier avec ma famille</Text>
+            <>
+              <Ionicons name="people" size={18} color="#fff" />
+              <Text style={styles.familyButtonText}>Vérifier avec ma famille</Text>
+            </>
           )}
         </Pressable>
       )}
@@ -77,39 +99,51 @@ export default function ResultScreen({ route, navigation }: Props) {
       <Pressable style={styles.doneButton} onPress={() => navigation.popToTop()}>
         <Text style={styles.doneButtonText}>Terminer</Text>
       </Pressable>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background, padding: 24, paddingTop: 56, alignItems: "center" },
-  scoreCircle: {
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    borderWidth: 8,
+  container: { flexGrow: 1, padding: spacing.xl, paddingTop: 48 },
+  gaugeCard: {
+    borderRadius: radius.lg,
+    paddingVertical: spacing.xxl,
     alignItems: "center",
-    justifyContent: "center",
-    flexDirection: "row",
+    ...shadow.card,
   },
-  scoreNumber: { fontSize: 40, fontWeight: "800" },
-  scoreMax: { fontSize: 14, color: colors.textMuted, marginLeft: 2 },
-  niveau: { fontSize: 22, fontWeight: "800", marginTop: 16, letterSpacing: 1 },
-  warning: { fontSize: 14, color: colors.danger, fontWeight: "600", marginTop: 8, textAlign: "center" },
-  sectionTitle: { fontSize: 15, fontWeight: "700", color: colors.text, marginTop: 28, alignSelf: "flex-start" },
-  raisonRow: { flexDirection: "row", marginTop: 10, alignSelf: "flex-start" },
-  raisonBullet: { color: colors.textMuted, marginRight: 8 },
-  raisonText: { color: colors.text, fontSize: 14, flex: 1 },
+  niveauRow: { flexDirection: "row", alignItems: "center", gap: spacing.xs, marginTop: spacing.lg },
+  niveau: { fontSize: 20, fontWeight: "800", letterSpacing: 0.5 },
+  warning: {
+    fontSize: 13,
+    color: colors.danger,
+    fontWeight: "700",
+    marginTop: spacing.sm,
+    textAlign: "center",
+    paddingHorizontal: spacing.xl,
+  },
+  reasonsCard: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    padding: spacing.xl,
+    marginTop: spacing.lg,
+    ...shadow.card,
+  },
+  sectionTitle: { fontSize: 15, fontWeight: "800", color: colors.text, marginBottom: spacing.md },
+  raisonRow: { flexDirection: "row", marginTop: spacing.sm, alignItems: "flex-start" },
+  raisonDot: { width: 7, height: 7, borderRadius: 4, marginTop: 6, marginRight: spacing.sm },
+  raisonText: { color: colors.text, fontSize: 14.5, flex: 1, lineHeight: 20 },
   familyButton: {
     backgroundColor: colors.danger,
-    borderRadius: 10,
-    paddingVertical: 16,
-    paddingHorizontal: 24,
+    borderRadius: radius.md,
+    paddingVertical: spacing.lg,
+    flexDirection: "row",
     alignItems: "center",
-    marginTop: 32,
-    width: "100%",
+    justifyContent: "center",
+    gap: spacing.sm,
+    marginTop: spacing.xl,
+    ...shadow.button,
   },
   familyButtonText: { color: "#fff", fontSize: 16, fontWeight: "700" },
-  doneButton: { marginTop: 20, paddingVertical: 12 },
-  doneButtonText: { color: colors.textMuted, fontSize: 14 },
+  doneButton: { marginTop: spacing.lg, paddingVertical: spacing.md, alignItems: "center" },
+  doneButtonText: { color: colors.textMuted, fontSize: 14, fontWeight: "600" },
 });

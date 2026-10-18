@@ -43,10 +43,17 @@ function AuthNavigator() {
 
 function AppNavigator() {
   return (
-    <AppStack.Navigator screenOptions={{ headerTintColor: colors.primary }}>
+    <AppStack.Navigator
+      screenOptions={{
+        headerTintColor: colors.brand,
+        headerStyle: { backgroundColor: colors.background },
+        headerShadowVisible: false,
+        headerTitleStyle: { color: colors.text, fontWeight: "700" },
+      }}
+    >
       <AppStack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
-      <AppStack.Screen name="Check" component={CheckScreen} options={{ title: "Verifier" }} />
-      <AppStack.Screen name="Result" component={ResultScreen} options={{ title: "Resultat" }} />
+      <AppStack.Screen name="Check" component={CheckScreen} options={{ title: "Vérifier" }} />
+      <AppStack.Screen name="Result" component={ResultScreen} options={{ title: "Résultat" }} />
       <AppStack.Screen
         name="CallFamily"
         component={CallFamilyScreen}
@@ -64,7 +71,7 @@ export default function RootNavigator() {
   if (loading) {
     return (
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: colors.background }}>
-        <ActivityIndicator size="large" color={colors.primary} />
+        <ActivityIndicator size="large" color={colors.brand} />
       </View>
     );
   }

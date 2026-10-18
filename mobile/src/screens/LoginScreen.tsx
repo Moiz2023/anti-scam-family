@@ -7,9 +7,14 @@ import {
   StyleSheet,
   Alert,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { Ionicons } from "@expo/vector-icons";
 import { supabase } from "../lib/supabase";
-import { colors } from "../theme/colors";
+import { colors, gradients, radius, spacing, shadow } from "../theme/colors";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { AuthStackParamList } from "../navigation/RootNavigator";
 
@@ -32,61 +37,100 @@ export default function LoginScreen({ navigation }: Props) {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Anti-Scam Family</Text>
-      <Text style={styles.subtitle}>
-        Nous detectons et signalons des signaux de risque de fraude. Jamais une garantie
-        de securite absolue.
-      </Text>
+    <KeyboardAvoidingView
+      style={{ flex: 1, backgroundColor: colors.background }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
+      <LinearGradient colors={gradients.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.hero}>
+        <View style={styles.badge}>
+          <Ionicons name="shield-checkmark" size={26} color="#fff" />
+        </View>
+        <Text style={styles.title}>Anti-Scam Family</Text>
+        <Text style={styles.subtitle}>
+          Nous détectons et signalons des signaux de risque. Jamais une garantie de sécurité
+          absolue.
+        </Text>
+      </LinearGradient>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        autoCapitalize="none"
-        keyboardType="email-address"
-        value={email}
-        onChangeText={setEmail}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Mot de passe"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
+      <View style={styles.form}>
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          placeholderTextColor={colors.textMuted}
+          autoCapitalize="none"
+          keyboardType="email-address"
+          value={email}
+          onChangeText={setEmail}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Mot de passe"
+          placeholderTextColor={colors.textMuted}
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
+        />
 
-      <Pressable style={styles.button} onPress={handleLogin} disabled={loading}>
-        {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Se connecter</Text>}
-      </Pressable>
+        <Pressable style={styles.button} onPress={handleLogin} disabled={loading}>
+          {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Se connecter</Text>}
+        </Pressable>
 
-      <Pressable onPress={() => navigation.navigate("Register")}>
-        <Text style={styles.link}>Pas encore de compte ? Creer un compte</Text>
-      </Pressable>
-    </View>
+        <Pressable onPress={() => navigation.navigate("Register")}>
+          <Text style={styles.link}>Pas encore de compte ? Créer un compte</Text>
+        </Pressable>
+      </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background, padding: 24, justifyContent: "center" },
-  title: { fontSize: 28, fontWeight: "700", color: colors.text, textAlign: "center" },
-  subtitle: { fontSize: 13, color: colors.textMuted, textAlign: "center", marginTop: 8, marginBottom: 32 },
+  hero: {
+    paddingTop: 72,
+    paddingBottom: spacing.xxl,
+    paddingHorizontal: spacing.xl,
+    borderBottomLeftRadius: radius.lg,
+    borderBottomRightRadius: radius.lg,
+    alignItems: "center",
+  },
+  badge: {
+    width: 52,
+    height: 52,
+    borderRadius: radius.md,
+    backgroundColor: "rgba(255,255,255,0.18)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: spacing.md,
+  },
+  title: { fontSize: 26, fontWeight: "800", color: "#fff" },
+  subtitle: {
+    fontSize: 13,
+    color: "rgba(255,255,255,0.88)",
+    textAlign: "center",
+    marginTop: spacing.sm,
+    lineHeight: 18,
+  },
+  form: { padding: spacing.xl },
   input: {
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    marginBottom: 12,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.lg,
+    marginBottom: spacing.md,
     fontSize: 16,
+    color: colors.text,
   },
   button: {
-    backgroundColor: colors.primary,
-    borderRadius: 10,
-    paddingVertical: 14,
+    backgroundColor: colors.brand,
+    borderRadius: radius.sm,
+    paddingVertical: spacing.lg,
     alignItems: "center",
-    marginTop: 8,
+    marginTop: spacing.sm,
+    ...shadow.button,
   },
-  buttonText: { color: "#fff", fontSize: 16, fontWeight: "600" },
-  link: { color: colors.primary, textAlign: "center", marginTop: 20 },
+  buttonText: { color: "#fff", fontSize: 16, fontWeight: "700" },
+  link: { color: colors.brand, textAlign: "center", marginTop: spacing.xl, fontWeight: "600" },
 });

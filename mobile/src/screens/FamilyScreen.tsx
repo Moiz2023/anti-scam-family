@@ -12,7 +12,8 @@ import {
   Share,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
-import { colors, colorForNiveau, labelForNiveau } from "../theme/colors";
+import { Ionicons } from "@expo/vector-icons";
+import { colors, colorForNiveau, softColorForNiveau, labelForNiveau, radius, spacing, shadow } from "../theme/colors";
 import {
   createInviteCode,
   redeemInviteCode,
@@ -60,11 +61,11 @@ export default function FamilyScreen() {
       const code = await createInviteCode();
       Alert.alert(
         "Code d'invitation",
-        `Partage ce code avec ton proche pour qu'il te protege : ${code}\n\nValide 7 jours.`,
+        `Partage ce code avec ton proche pour qu'il te protège : ${code}\n\nValide 7 jours.`,
       );
       Share.share({ message: `Rejoins-moi sur Anti-Scam Family avec le code ${code}` });
     } catch (err) {
-      Alert.alert("Erreur", "Impossible de generer un code pour le moment.");
+      Alert.alert("Erreur", "Impossible de générer un code pour le moment.");
       console.error(err);
     }
   }
@@ -74,10 +75,10 @@ export default function FamilyScreen() {
     try {
       await redeemInviteCode(codeInput);
       setCodeInput("");
-      Alert.alert("Lien cree", "Vous protegez maintenant cette personne.");
+      Alert.alert("Lien créé", "Vous protégez maintenant cette personne.");
       loadAll();
     } catch (err) {
-      Alert.alert("Code invalide", "Ce code est invalide ou a expire.");
+      Alert.alert("Code invalide", "Ce code est invalide ou a expiré.");
       console.error(err);
     }
   }
@@ -88,7 +89,7 @@ export default function FamilyScreen() {
       await respondFamilyCheck(check.id, confirmed);
       setPendingChecks((prev) => prev.filter((c) => c.id !== check.id));
     } catch (err) {
-      Alert.alert("Erreur", "Impossible d'enregistrer la reponse.");
+      Alert.alert("Erreur", "Impossible d'enregistrer la réponse.");
       console.error(err);
     } finally {
       setBusyCheckId(null);
@@ -98,36 +99,40 @@ export default function FamilyScreen() {
   if (loading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator />
+        <ActivityIndicator color={colors.brand} />
       </View>
     );
   }
 
   return (
     <ScrollView
+      style={{ backgroundColor: colors.background }}
       contentContainerStyle={styles.container}
-      refreshControl={<RefreshControl refreshing={false} onRefresh={loadAll} />}
+      refreshControl={<RefreshControl refreshing={false} onRefresh={loadAll} tintColor={colors.brand} />}
     >
       <Text style={styles.title}>Ma famille</Text>
 
       {pendingChecks.length > 0 && (
         <>
-          <Text style={styles.sectionTitle}>Alertes a verifier</Text>
+          <SectionHeader icon="warning" label="Alertes à vérifier" color={colors.danger} />
           {pendingChecks.map((check) => {
             const event = check.analysis_events;
             if (!event) return null;
+            const niveauColor = colorForNiveau(event.niveau);
             return (
-              <View key={check.id} style={styles.alertCard}>
-                <Text style={[styles.alertNiveau, { color: colorForNiveau(event.niveau) }]}>
-                  {labelForNiveau(event.niveau)} — score {event.score}/100
-                </Text>
+              <View key={check.id} style={[styles.alertCard, { borderColor: niveauColor }]}>
+                <View style={[styles.alertBadge, { backgroundColor: softColorForNiveau(event.niveau) }]}>
+                  <Text style={[styles.alertNiveau, { color: niveauColor }]}>
+                    {labelForNiveau(event.niveau)} — score {event.score}/100
+                  </Text>
+                </View>
                 {event.input_text && (
                   <Text style={styles.alertText} numberOfLines={3}>
                     "{event.input_text}"
                   </Text>
                 )}
                 <Text style={styles.alertQuestion}>
-                  Cette demande est-elle vraiment legitime ?
+                  Cette demande est-elle vraiment légitime ?
                 </Text>
                 <View style={styles.alertActions}>
                   <Pressable
@@ -135,13 +140,15 @@ export default function FamilyScreen() {
                     disabled={busyCheckId === check.id}
                     onPress={() => handleRespond(check, true)}
                   >
-                    <Text style={styles.alertButtonText}>OUI, legitime</Text>
+                    <Ionicons name="checkmark" size={15} color="#fff" />
+                    <Text style={styles.alertButtonText}>OUI, légitime</Text>
                   </Pressable>
                   <Pressable
                     style={[styles.alertButton, { backgroundColor: colors.danger }]}
                     disabled={busyCheckId === check.id}
                     onPress={() => handleRespond(check, false)}
                   >
+                    <Ionicons name="close" size={15} color="#fff" />
                     <Text style={styles.alertButtonText}>NON, bloquer</Text>
                   </Pressable>
                 </View>
@@ -151,89 +158,145 @@ export default function FamilyScreen() {
         </>
       )}
 
-      <Text style={styles.sectionTitle}>Personnes que je protege</Text>
+      <SectionHeader icon="shield-checkmark" label="Personnes que je protège" color={colors.brand} />
       {protectedPersons.length === 0 && (
-        <Text style={styles.empty}>Aucune personne protegee pour l'instant.</Text>
+        <Text style={styles.empty}>Aucune personne protégée pour l'instant.</Text>
       )}
       {protectedPersons.map((p) => (
-        <View key={p.id} style={styles.personRow}>
-          <Text style={styles.personName}>{p.full_name ?? "Personne"}</Text>
-        </View>
+        <PersonRow key={p.id} name={p.full_name} />
       ))}
-      <Pressable style={styles.secondaryButton} onPress={() => setCodeInput("")}>
-        <TextInput
-          style={styles.codeInput}
-          placeholder="Code recu d'un proche (ex: AB12CD)"
-          autoCapitalize="characters"
-          value={codeInput}
-          onChangeText={setCodeInput}
-        />
-      </Pressable>
+
+      <TextInput
+        style={styles.codeInput}
+        placeholder="Code reçu d'un proche (ex: AB12CD)"
+        placeholderTextColor={colors.textMuted}
+        autoCapitalize="characters"
+        value={codeInput}
+        onChangeText={setCodeInput}
+      />
       <Pressable style={styles.primaryButton} onPress={handleRedeemCode}>
-        <Text style={styles.primaryButtonText}>Proteger cette personne</Text>
+        <Ionicons name="link" size={16} color="#fff" />
+        <Text style={styles.primaryButtonText}>Protéger cette personne</Text>
       </Pressable>
 
-      <Text style={styles.sectionTitle}>Qui me protege</Text>
+      <SectionHeader icon="heart" label="Qui me protège" color={colors.help} />
       {protectors.length === 0 && (
-        <Text style={styles.empty}>Personne ne te protege encore.</Text>
+        <Text style={styles.empty}>Personne ne te protège encore.</Text>
       )}
       {protectors.map((p) => (
-        <View key={p.id} style={styles.personRow}>
-          <Text style={styles.personName}>{p.full_name ?? "Proche"}</Text>
-        </View>
+        <PersonRow key={p.id} name={p.full_name ?? "Proche"} />
       ))}
-      <Pressable style={styles.primaryButton} onPress={handleGenerateCode}>
-        <Text style={styles.primaryButtonText}>Generer un code d'invitation</Text>
+      <Pressable style={[styles.primaryButton, { backgroundColor: colors.help }]} onPress={handleGenerateCode}>
+        <Ionicons name="qr-code" size={16} color="#fff" />
+        <Text style={styles.primaryButtonText}>Générer un code d'invitation</Text>
       </Pressable>
     </ScrollView>
   );
 }
 
+function SectionHeader({ icon, label, color }: { icon: keyof typeof Ionicons.glyphMap; label: string; color: string }) {
+  return (
+    <View style={styles.sectionHeader}>
+      <Ionicons name={icon} size={16} color={color} />
+      <Text style={styles.sectionTitle}>{label}</Text>
+    </View>
+  );
+}
+
+function PersonRow({ name }: { name: string | null }) {
+  return (
+    <View style={styles.personRow}>
+      <View style={styles.avatar}>
+        <Text style={styles.avatarText}>{(name ?? "?").charAt(0).toUpperCase()}</Text>
+      </View>
+      <Text style={styles.personName}>{name ?? "Personne"}</Text>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
-  container: { flexGrow: 1, backgroundColor: colors.background, padding: 24, paddingTop: 48 },
+  container: { flexGrow: 1, padding: spacing.xl, paddingTop: 32 },
   centered: { flex: 1, backgroundColor: colors.background, alignItems: "center", justifyContent: "center" },
-  title: { fontSize: 22, fontWeight: "700", color: colors.text, marginBottom: 8 },
-  sectionTitle: { fontSize: 15, fontWeight: "700", color: colors.text, marginTop: 24, marginBottom: 10 },
-  empty: { color: colors.textMuted, fontSize: 13, marginBottom: 8 },
+  title: { fontSize: 22, fontWeight: "800", color: colors.text, marginBottom: spacing.sm },
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
+    marginTop: spacing.xl,
+    marginBottom: spacing.md,
+  },
+  sectionTitle: { fontSize: 14, fontWeight: "800", color: colors.text, textTransform: "uppercase", letterSpacing: 0.4 },
+  empty: { color: colors.textMuted, fontSize: 13, marginBottom: spacing.sm },
   personRow: {
     backgroundColor: colors.surface,
-    borderRadius: 10,
-    padding: 14,
-    marginBottom: 8,
-    borderWidth: 1,
-    borderColor: colors.border,
+    borderRadius: radius.sm,
+    padding: spacing.md,
+    marginBottom: spacing.sm,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+    ...shadow.card,
   },
+  avatar: {
+    width: 34,
+    height: 34,
+    borderRadius: radius.pill,
+    backgroundColor: colors.brandSoft,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatarText: { color: colors.brand, fontWeight: "800", fontSize: 14 },
   personName: { fontSize: 15, fontWeight: "600", color: colors.text },
   codeInput: {
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.lg,
     fontSize: 15,
+    color: colors.text,
+    marginTop: spacing.xs,
   },
-  secondaryButton: { marginTop: 4 },
   primaryButton: {
-    backgroundColor: colors.primary,
-    borderRadius: 10,
-    paddingVertical: 14,
+    backgroundColor: colors.brand,
+    borderRadius: radius.sm,
+    paddingVertical: spacing.lg,
+    flexDirection: "row",
     alignItems: "center",
-    marginTop: 12,
+    justifyContent: "center",
+    gap: spacing.sm,
+    marginTop: spacing.md,
+    ...shadow.button,
   },
   primaryButtonText: { color: "#fff", fontWeight: "700" },
   alertCard: {
     backgroundColor: colors.surface,
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+    borderRadius: radius.md,
+    padding: spacing.lg,
+    marginBottom: spacing.md,
     borderWidth: 2,
-    borderColor: colors.danger,
+    ...shadow.card,
   },
-  alertNiveau: { fontWeight: "800", fontSize: 14, marginBottom: 6 },
-  alertText: { color: colors.textMuted, fontStyle: "italic", marginBottom: 8 },
-  alertQuestion: { color: colors.text, fontWeight: "600", marginBottom: 10 },
-  alertActions: { flexDirection: "row", gap: 10 },
-  alertButton: { flex: 1, borderRadius: 8, paddingVertical: 12, alignItems: "center" },
+  alertBadge: {
+    alignSelf: "flex-start",
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 5,
+    marginBottom: spacing.sm,
+  },
+  alertNiveau: { fontWeight: "800", fontSize: 12.5 },
+  alertText: { color: colors.textMuted, fontStyle: "italic", marginBottom: spacing.sm, lineHeight: 19 },
+  alertQuestion: { color: colors.text, fontWeight: "700", marginBottom: spacing.md },
+  alertActions: { flexDirection: "row", gap: spacing.sm },
+  alertButton: {
+    flex: 1,
+    borderRadius: radius.sm,
+    paddingVertical: spacing.md,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+  },
   alertButtonText: { color: "#fff", fontWeight: "700", fontSize: 13 },
 });
