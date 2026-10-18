@@ -2,6 +2,8 @@ import React from "react";
 import { View, ActivityIndicator } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../lib/AuthContext";
 import { colors } from "../theme/colors";
 import type { AnalyzeResult } from "../lib/api";
@@ -20,17 +22,22 @@ export type AuthStackParamList = {
   Register: undefined;
 };
 
+export type TabParamList = {
+  HomeTab: undefined;
+  FamilyTab: undefined;
+  HelpTab: undefined;
+};
+
 export type AppStackParamList = {
-  Home: undefined;
+  Tabs: undefined;
   Check: undefined;
   Result: { result: AnalyzeResult };
   CallFamily: undefined;
-  Help: undefined;
-  Family: undefined;
 };
 
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
 const AppStack = createNativeStackNavigator<AppStackParamList>();
+const Tab = createBottomTabNavigator<TabParamList>();
 
 function AuthNavigator() {
   return (
@@ -38,6 +45,35 @@ function AuthNavigator() {
       <AuthStack.Screen name="Login" component={LoginScreen} />
       <AuthStack.Screen name="Register" component={RegisterScreen} />
     </AuthStack.Navigator>
+  );
+}
+
+const TAB_ICONS: Record<keyof TabParamList, keyof typeof Ionicons.glyphMap> = {
+  HomeTab: "home",
+  FamilyTab: "people",
+  HelpTab: "help-buoy",
+};
+
+function TabNavigator() {
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        headerShown: route.name === "HomeTab" ? false : true,
+        headerStyle: { backgroundColor: colors.background },
+        headerShadowVisible: false,
+        headerTitleStyle: { color: colors.text, fontWeight: "700" as const },
+        tabBarActiveTintColor: colors.brand,
+        tabBarInactiveTintColor: colors.textMuted,
+        tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.border },
+        tabBarIcon: ({ color, size }) => (
+          <Ionicons name={TAB_ICONS[route.name]} size={size} color={color} />
+        ),
+      })}
+    >
+      <Tab.Screen name="HomeTab" component={HomeScreen} options={{ title: "Accueil" }} />
+      <Tab.Screen name="FamilyTab" component={FamilyScreen} options={{ title: "Famille" }} />
+      <Tab.Screen name="HelpTab" component={HelpScreen} options={{ title: "Aide" }} />
+    </Tab.Navigator>
   );
 }
 
@@ -51,7 +87,7 @@ function AppNavigator() {
         headerTitleStyle: { color: colors.text, fontWeight: "700" },
       }}
     >
-      <AppStack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
+      <AppStack.Screen name="Tabs" component={TabNavigator} options={{ headerShown: false }} />
       <AppStack.Screen name="Check" component={CheckScreen} options={{ title: "Vérifier" }} />
       <AppStack.Screen name="Result" component={ResultScreen} options={{ title: "Résultat" }} />
       <AppStack.Screen
@@ -59,8 +95,6 @@ function AppNavigator() {
         component={CallFamilyScreen}
         options={{ title: "Appeler la famille" }}
       />
-      <AppStack.Screen name="Help" component={HelpScreen} options={{ title: "Aide" }} />
-      <AppStack.Screen name="Family" component={FamilyScreen} options={{ title: "Ma famille" }} />
     </AppStack.Navigator>
   );
 }

@@ -24,6 +24,9 @@ export const colors = {
   help: "#7A4DF2",
   helpSoft: "#F0E9FF",
 
+  dark: "#17152B",
+  darkAlt: "#201D3C",
+
   white: "#FFFFFF",
 };
 

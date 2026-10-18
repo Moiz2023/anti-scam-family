@@ -68,13 +68,16 @@ export interface RiskEvent {
   input_text: string | null;
 }
 
-export async function fetchFamilyRiskEvents(): Promise<RiskEvent[]> {
+export async function fetchFamilyRiskEvents(limit = 50): Promise<RiskEvent[]> {
+  // Grace a RLS (analysis_events_owner_all + analysis_events_family_select),
+  // retourne a la fois mes propres evenements a risque et ceux des personnes
+  // que je protege : exactement le flux d'activite familial recherche.
   const { data, error } = await supabase
     .from("analysis_events")
     .select("id, protected_id, score, niveau, raisons, created_at, input_text")
     .in("niveau", ["attention", "danger"])
     .order("created_at", { ascending: false })
-    .limit(50);
+    .limit(limit);
   if (error) throw error;
   return data as RiskEvent[];
 }
