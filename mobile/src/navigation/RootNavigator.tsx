@@ -16,6 +16,7 @@ import ResultScreen from "../screens/ResultScreen";
 import CallFamilyScreen from "../screens/CallFamilyScreen";
 import HelpScreen from "../screens/HelpScreen";
 import FamilyScreen from "../screens/FamilyScreen";
+import QrScanScreen from "../screens/QrScanScreen";
 
 export type AuthStackParamList = {
   Login: undefined;
@@ -30,9 +31,10 @@ export type TabParamList = {
 
 export type AppStackParamList = {
   Tabs: undefined;
-  Check: undefined;
+  Check: { prefillLink?: string } | undefined;
   Result: { result: AnalyzeResult };
   CallFamily: undefined;
+  QrScan: undefined;
 };
 
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
@@ -94,6 +96,11 @@ function AppNavigator() {
         name="CallFamily"
         component={CallFamilyScreen}
         options={{ title: "Appeler la famille" }}
+      />
+      <AppStack.Screen
+        name="QrScan"
+        component={QrScanScreen}
+        options={{ title: "Scanner un QR code", headerTintColor: "#fff", headerStyle: { backgroundColor: colors.dark } }}
       />
     </AppStack.Navigator>
   );

@@ -20,10 +20,11 @@ import type { AppStackParamList } from "../navigation/RootNavigator";
 
 type Props = NativeStackScreenProps<AppStackParamList, "Check">;
 
-export default function CheckScreen({ navigation }: Props) {
-  const [text, setText] = useState("");
+export default function CheckScreen({ navigation, route }: Props) {
+  const prefillLink = route.params?.prefillLink;
+  const [text, setText] = useState(prefillLink ?? "");
   const [sender, setSender] = useState("");
-  const [link, setLink] = useState("");
+  const [link, setLink] = useState(prefillLink ?? "");
   const [loading, setLoading] = useState(false);
 
   async function handlePaste() {
@@ -74,10 +75,16 @@ export default function CheckScreen({ navigation }: Props) {
           onChangeText={setText}
         />
 
-        <Pressable style={styles.pasteButton} onPress={handlePaste}>
-          <Ionicons name="clipboard-outline" size={15} color={colors.brand} />
-          <Text style={styles.pasteButtonText}>Coller depuis le presse-papier</Text>
-        </Pressable>
+        <View style={styles.quickActionsRow}>
+          <Pressable style={styles.quickAction} onPress={handlePaste}>
+            <Ionicons name="clipboard-outline" size={15} color={colors.brand} />
+            <Text style={styles.quickActionText}>Coller</Text>
+          </Pressable>
+          <Pressable style={styles.quickAction} onPress={() => navigation.navigate("QrScan")}>
+            <Ionicons name="qr-code-outline" size={15} color={colors.brand} />
+            <Text style={styles.quickActionText}>Scanner un QR code</Text>
+          </Pressable>
+        </View>
 
         <TextInput
           style={styles.input}
@@ -126,15 +133,15 @@ const styles = StyleSheet.create({
     color: colors.text,
     ...shadow.card,
   },
-  pasteButton: {
-    alignSelf: "flex-end",
+  quickActionsRow: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: spacing.lg,
     marginTop: spacing.sm,
     marginBottom: spacing.lg,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
   },
-  pasteButtonText: { color: colors.brand, fontSize: 13, fontWeight: "700" },
+  quickAction: { flexDirection: "row", alignItems: "center", gap: 6 },
+  quickActionText: { color: colors.brand, fontSize: 13, fontWeight: "700" },
   input: {
     backgroundColor: colors.surface,
     borderWidth: 1,

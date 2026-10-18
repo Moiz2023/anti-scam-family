@@ -29,6 +29,15 @@ module.exports = {
     web: {
       favicon: "./assets/favicon.png",
     },
-    plugins: ["expo-notifications"],
+    plugins: [
+      "expo-notifications",
+      [
+        "expo-camera",
+        {
+          cameraPermission:
+            "Anti-Scam Family utilise l'appareil photo pour scanner un QR code (ex: amende de stationnement) et verifier le lien avant de payer.",
+        },
+      ],
+    ],
   },
 };

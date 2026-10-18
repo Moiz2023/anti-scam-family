@@ -123,6 +123,10 @@ export default function HomeScreen({ navigation }: Props) {
         <Pressable style={styles.analyzeButton} onPress={() => navigation.navigate("Check")}>
           <Text style={styles.analyzeButtonText}>Analyser maintenant</Text>
         </Pressable>
+        <Pressable style={styles.qrButton} onPress={() => navigation.navigate("QrScan")}>
+          <Ionicons name="qr-code-outline" size={16} color="#fff" />
+          <Text style={styles.qrButtonText}>Scanner un QR code</Text>
+        </Pressable>
       </View>
 
       <Pressable
@@ -271,6 +275,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   analyzeButtonText: { color: colors.dark, fontWeight: "800", fontSize: 15.5 },
+  qrButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    marginTop: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  qrButtonText: { color: "rgba(255,255,255,0.85)", fontWeight: "700", fontSize: 13 },
   familyCard: {
     backgroundColor: colors.surface,
     borderRadius: radius.lg,
