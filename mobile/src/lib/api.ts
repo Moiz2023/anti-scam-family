@@ -116,10 +116,12 @@ export async function fetchMyFamilyChecks(): Promise<FamilyCheckRow[]> {
 }
 
 export async function respondFamilyCheck(id: string, confirmed: boolean) {
-  const { error } = await supabase
-    .from("family_checks")
-    .update({ status: confirmed ? "confirmed" : "denied", responded_at: new Date().toISOString() })
-    .eq("id", id);
+  // Passe par l'edge function (plutot qu'un update direct) pour notifier la
+  // personne protegee du resultat : sans ca, elle n'a aucun moyen de savoir
+  // que son proche a repondu sans rouvrir l'app.
+  const { error } = await supabase.functions.invoke("respond-family-check", {
+    body: { checkId: id, confirmed },
+  });
   if (error) throw error;
 }
 
