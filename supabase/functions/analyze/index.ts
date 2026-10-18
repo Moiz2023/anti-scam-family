@@ -1,14 +1,18 @@
 // POST /functions/v1/analyze
-// Entree : { text: string, sender?: string, link?: string, source?: "manual"|"share" }
+// Entree : { text: string, sender?: string, link?: string, source?: "manual"|"share",
+//            inputType?: "message"|"phone" }
 // Sortie : { id, score, niveau, raisons[] }
 //
 // Combine heuristiques deterministes + classification Claude (si ANTHROPIC_API_KEY
 // est configuree). Sans cle, retombe sur les heuristiques seules : utile en dev.
+// inputType "phone" : `text` est un numero de telephone suspect (ex: appel
+// manque) plutot qu'un message — heuristiques et prompt Claude dedies.
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders, handleCors } from "../_shared/cors.ts";
 import { computeHeuristics, type AnalyzeInput } from "../_shared/heuristics.ts";
-import { classifyWithClaude } from "../_shared/claude.ts";
+import { computePhoneHeuristics } from "../_shared/phone-heuristics.ts";
+import { classifyWithClaude, classifyPhoneWithClaude } from "../_shared/claude.ts";
 
 function niveauFromScore(score: number): "faible" | "attention" | "danger" {
   if (score >= 71) return "danger";
@@ -27,7 +31,7 @@ Deno.serve(async (req) => {
     });
   }
 
-  let body: AnalyzeInput & { source?: "manual" | "share" };
+  let body: AnalyzeInput & { source?: "manual" | "share" | "phone"; inputType?: "message" | "phone" };
   try {
     body = await req.json();
   } catch {
@@ -44,8 +48,12 @@ Deno.serve(async (req) => {
     });
   }
 
-  const heuristics = computeHeuristics(body);
-  const claudeResult = await classifyWithClaude(body, heuristics.raisons);
+  const isPhone = body.inputType === "phone";
+
+  const heuristics = isPhone ? computePhoneHeuristics(body.text) : computeHeuristics(body);
+  const claudeResult = isPhone
+    ? await classifyPhoneWithClaude(body.text, heuristics.raisons)
+    : await classifyWithClaude(body, heuristics.raisons);
 
   let score: number;
   let niveau: "faible" | "attention" | "danger";
@@ -81,12 +89,12 @@ Deno.serve(async (req) => {
       .insert({
         protected_id: userId,
         input_text: body.text,
-        input_sender: body.sender ?? null,
-        input_link: body.link ?? null,
+        input_sender: isPhone ? null : body.sender ?? null,
+        input_link: isPhone ? null : body.link ?? null,
         score,
         niveau,
         raisons,
-        source: body.source ?? "manual",
+        source: isPhone ? "phone" : body.source ?? "manual",
       })
       .select("id")
       .single();

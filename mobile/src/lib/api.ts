@@ -12,6 +12,7 @@ export async function analyzeMessage(input: {
   sender?: string;
   link?: string;
   source?: "manual" | "share";
+  inputType?: "message" | "phone";
 }): Promise<AnalyzeResult> {
   const { data, error } = await supabase.functions.invoke("analyze", {
     body: input,

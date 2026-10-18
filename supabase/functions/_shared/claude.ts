@@ -57,9 +57,9 @@ const TOOL_SCHEMA = {
   },
 };
 
-export async function classifyWithClaude(
-  input: AnalyzeInput,
-  heuristicSignals: string[],
+async function callClaudeTool(
+  systemPrompt: string,
+  userContent: string,
 ): Promise<ClassificationResult | null> {
   const apiKey = Deno.env.get("ANTHROPIC_API_KEY");
   if (!apiKey) {
@@ -67,15 +67,6 @@ export async function classifyWithClaude(
   }
 
   const model = Deno.env.get("ANTHROPIC_MODEL") ?? "claude-haiku-4-5-20251001";
-
-  const userContent = [
-    `Message recu : """${input.text}"""`,
-    input.sender ? `Expediteur : ${input.sender}` : null,
-    input.link ? `Lien partage : ${input.link}` : null,
-    heuristicSignals.length > 0
-      ? `Signaux heuristiques deja detectes automatiquement : ${heuristicSignals.join("; ")}`
-      : "Aucun signal heuristique automatique detecte.",
-  ].filter(Boolean).join("\n");
 
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
@@ -87,7 +78,7 @@ export async function classifyWithClaude(
     body: JSON.stringify({
       model,
       max_tokens: 1024,
-      system: SYSTEM_PROMPT,
+      system: systemPrompt,
       messages: [{ role: "user", content: userContent }],
       tools: [TOOL_SCHEMA],
       tool_choice: { type: "tool", name: "submit_analysis" },
@@ -118,4 +109,51 @@ export async function classifyWithClaude(
   }
 
   return result;
+}
+
+export async function classifyWithClaude(
+  input: AnalyzeInput,
+  heuristicSignals: string[],
+): Promise<ClassificationResult | null> {
+  const userContent = [
+    `Message recu : """${input.text}"""`,
+    input.sender ? `Expediteur : ${input.sender}` : null,
+    input.link ? `Lien partage : ${input.link}` : null,
+    heuristicSignals.length > 0
+      ? `Signaux heuristiques deja detectes automatiquement : ${heuristicSignals.join("; ")}`
+      : "Aucun signal heuristique automatique detecte.",
+  ].filter(Boolean).join("\n");
+
+  return callClaudeTool(SYSTEM_PROMPT, userContent);
+}
+
+const PHONE_SYSTEM_PROMPT = `Tu es le moteur de detection de risque de fraude de "Anti-Scam
+Family", une app belge qui protege des personnes (souvent des parents ages) contre les
+arnaques. Ici tu analyses UN NUMERO DE TELEPHONE (pas un message) qui a appele ou envoye un
+SMS a la personne, qu'elle trouve suspect.
+
+Tu n'as PAS acces a une base de reputation en temps reel : base-toi uniquement sur le format
+du numero (indicatif pays, serie surtaxee belge 0900-0909, longueur/format inhabituel) et les
+signaux heuristiques deja fournis. Les arnaques telephoniques courantes a garder en tete :
+"Wangiri" (appel tres court depuis un numero etranger inconnu, pour inciter a rappeler un
+numero surtaxe), faux support technique, faux agent bancaire/administratif qui demande de
+rappeler un numero donne dans un SMS.
+
+Memes regles que pour un message : jamais "SAFE", toujours "aucun signal de risque detecte"
+si rien d'anormal, score 0-100 avec niveau faible/attention/danger, raisons pedagogiques.
+Reste prudent avec le score si le numero n'a aucun motif reconnaissable : un numero inconnu
+n'est pas en soi une preuve de fraude.`;
+
+export async function classifyPhoneWithClaude(
+  rawNumber: string,
+  heuristicSignals: string[],
+): Promise<ClassificationResult | null> {
+  const userContent = [
+    `Numero signale comme suspect : """${rawNumber}"""`,
+    heuristicSignals.length > 0
+      ? `Signaux heuristiques deja detectes automatiquement : ${heuristicSignals.join("; ")}`
+      : "Aucun signal heuristique automatique detecte.",
+  ].join("\n");
+
+  return callClaudeTool(PHONE_SYSTEM_PROMPT, userContent);
 }
