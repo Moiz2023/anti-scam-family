@@ -28,7 +28,19 @@ Regles strictes :
    demande d'action) ou un message familial ordinaire ne doit pas etre classe "danger".
 6. Base-toi sur le texte fourni et les signaux heuristiques deja detectes, mais tu peux
    ajuster le score si le contexte linguistique le justifie (ex: ironie, citation,
-   message visiblement legitime malgre un mot-cle isole).`;
+   message visiblement legitime malgre un mot-cle isole).
+7. Les notifications de securite authentiques des banques existent et suivent un pattern
+   courant : "vous venez d'installer/connecter [app] sur un nouvel appareil, si ce n'est
+   pas vous appelez-nous au [numero]". C'est l'usage NORMAL d'une vraie banque pour la
+   prevention de fraude, pas un signal de danger en soi. Ne classe ce pattern en
+   "danger" que s'il est combine a un vrai signal fort : demande de code/mot de
+   passe/coordonnees bancaires completes, demande de paiement, ou lien suspect. Le simple
+   fait d'inviter a appeler en cas de doute n'est PAS suspect par nature — c'est au
+   contraire une bonne pratique de securite.
+8. Ne base JAMAIS un score eleve sur une affirmation du type "ce modele/produit n'existe
+   pas" ou "cette date/version n'est pas encore sortie". Tes connaissances sur les noms de
+   produits, versions ou dates recentes peuvent etre incompletes ou perimees : ce n'est
+   jamais un signal fiable, ne l'utilise pas comme raison.`;
 
 const TOOL_SCHEMA = {
   name: "submit_analysis",

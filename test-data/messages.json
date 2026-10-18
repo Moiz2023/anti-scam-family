@@ -277,5 +277,14 @@
     "sender": "Proximus",
     "link": null,
     "expectedNiveau": "faible"
+  },
+  {
+    "id": "legit-14",
+    "category": "real_bank_new_device_alert",
+    "lang": "fr",
+    "text": "Vous venez d'installer Easy Banking App sur votre Apple iPhone 17 Pro Max. Vous n'avez rien fait? Appelez l'Easy Banking Centre au +32 2 433 41 65",
+    "sender": "BNP Paribas Fortis",
+    "link": null,
+    "expectedNiveau": "faible"
   }
 ]
