@@ -185,7 +185,16 @@ export default function HomeScreen({ navigation }: Props) {
         events.map((e) => {
           const niveauColor = colorForNiveau(e.niveau);
           return (
-            <View key={e.id} style={styles.alertCard}>
+            <Pressable
+              key={e.id}
+              style={styles.alertCard}
+              onPress={() =>
+                navigation.navigate("Result", {
+                  result: { id: e.id, score: e.score, niveau: e.niveau, raisons: e.raisons },
+                  readOnly: e.protected_id !== myId,
+                })
+              }
+            >
               <View style={[styles.alertIcon, { backgroundColor: softColorForNiveau(e.niveau) }]}>
                 <Ionicons name={e.niveau === "danger" ? "warning" : "alert-circle"} size={18} color={niveauColor} />
               </View>
@@ -197,7 +206,8 @@ export default function HomeScreen({ navigation }: Props) {
                   {nameFor(e.protected_id)} · {timeAgo(e.created_at)}
                 </Text>
               </View>
-            </View>
+              <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
+            </Pressable>
           );
         })
       )}

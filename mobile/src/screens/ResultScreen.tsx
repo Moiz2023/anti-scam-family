@@ -24,7 +24,7 @@ const NIVEAU_ICON = {
 };
 
 export default function ResultScreen({ route, navigation }: Props) {
-  const { result } = route.params;
+  const { result, isPhoneCheck, readOnly } = route.params;
   const [sending, setSending] = useState(false);
   const niveauColor = colorForNiveau(result.niveau);
   const softColor = softColorForNiveau(result.niveau);
@@ -73,6 +73,18 @@ export default function ResultScreen({ route, navigation }: Props) {
         )}
       </View>
 
+      {isPhoneCheck && result.niveau === "faible" && (
+        <View style={styles.hintCard}>
+          <Ionicons name="information-circle" size={18} color={colors.brand} />
+          <Text style={styles.hintText}>
+            Ce score ne couvre que le format du numéro (pas de base de réputation en temps
+            réel). Si ce numéro vous a aussi envoyé un message ou un lien, vérifiez-le
+            séparément avec "Vérifier un message" — c'est souvent là que se trouve le vrai
+            signal.
+          </Text>
+        </View>
+      )}
+
       <View style={styles.reasonsCard}>
         <Text style={styles.sectionTitle}>Pourquoi ce score ?</Text>
         {result.raisons.map((raison, idx) => (
@@ -83,7 +95,7 @@ export default function ResultScreen({ route, navigation }: Props) {
         ))}
       </View>
 
-      {isRisky && (
+      {isRisky && !readOnly && (
         <Pressable style={styles.familyButton} onPress={handleFamilyCheck} disabled={sending}>
           {sending ? (
             <ActivityIndicator color="#fff" />
@@ -121,6 +133,15 @@ const styles = StyleSheet.create({
     textAlign: "center",
     paddingHorizontal: spacing.xl,
   },
+  hintCard: {
+    flexDirection: "row",
+    gap: spacing.sm,
+    backgroundColor: colors.brandSoft,
+    borderRadius: radius.md,
+    padding: spacing.lg,
+    marginTop: spacing.lg,
+  },
+  hintText: { flex: 1, color: colors.text, fontSize: 13, lineHeight: 18 },
   reasonsCard: {
     backgroundColor: colors.surface,
     borderRadius: radius.lg,

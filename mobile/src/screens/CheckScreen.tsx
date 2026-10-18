@@ -55,7 +55,7 @@ export default function CheckScreen({ navigation, route }: Props) {
               link: link.trim() || undefined,
               source: "manual",
             });
-      navigation.navigate("Result", { result });
+      navigation.navigate("Result", { result, isPhoneCheck: mode === "phone" });
     } catch (err) {
       Alert.alert("Erreur", "L'analyse a échoué. Vérifie ta connexion et réessaie.");
       console.error(err);

@@ -32,7 +32,7 @@ export type TabParamList = {
 export type AppStackParamList = {
   Tabs: undefined;
   Check: { prefillLink?: string } | undefined;
-  Result: { result: AnalyzeResult };
+  Result: { result: AnalyzeResult; isPhoneCheck?: boolean; readOnly?: boolean };
   CallFamily: undefined;
   QrScan: undefined;
 };
