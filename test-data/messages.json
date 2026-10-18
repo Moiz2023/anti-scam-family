@@ -268,5 +268,14 @@
     "sender": "FitClub",
     "link": null,
     "expectedNiveau": "faible"
+  },
+  {
+    "id": "legit-13",
+    "category": "real_isp_invoice",
+    "lang": "fr",
+    "text": "Cher client Proximus, votre decompte numero 7650320187 de 131,95 EUR est disponible. Vous voulez regler directement ? C'est possible en toute securite via www.proximus.be/mondecompte Vous preferez faire un virement ? Utilisez le numero de compte BE82 2100 0008 8968 avec la reference +++765/0320/18727+++ avant le 24/10/2026. Merci d'avance !",
+    "sender": "Proximus",
+    "link": null,
+    "expectedNiveau": "faible"
   }
 ]

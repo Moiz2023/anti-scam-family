@@ -20,11 +20,21 @@ const URGENCY_WORDS = [
   "dringend", "onmiddellijk", "nu meteen",
 ];
 
+// Demandes d'argent intrinsequement a risque : une facture legitime ne les
+// contient jamais (contrairement a "virement"/"IBAN", voir TRANSFER_WORDS).
 const MONEY_WORDS = [
-  "virement", "vire-moi", "vire moi", "envoie-moi", "envoie moi",
-  "iban", "carte cadeau", "carte-cadeau", "cartes cadeaux", "cartes-cadeaux",
+  "vire-moi", "vire moi", "envoie-moi", "envoie moi",
+  "carte cadeau", "carte-cadeau", "cartes cadeaux", "cartes-cadeaux",
   "gift card", "bitcoin", "crypto", "cryptomonnaie", "western union",
-  "mandat cash", "overschrijving", "stortkaart", "cadeaukaart",
+  "mandat cash", "stortkaart", "cadeaukaart",
+];
+
+// Simple mention d'un virement/IBAN : neutre en soi (toute facture legitime
+// d'un fournisseur en parle). Sert uniquement a renforcer un autre signal
+// deja present (changement de beneficiaire, urgence...), jamais seul.
+const TRANSFER_WORDS = [
+  "virement", "iban", "overschrijving", "numero de compte",
+  "numéro de compte",
 ];
 
 const CREDENTIAL_WORDS = [
@@ -105,6 +115,8 @@ export function computeHeuristics(input: AnalyzeInput): HeuristicResult {
     raisons.push("Demande d'argent, de carte-cadeau ou de cryptomonnaie detectee");
   }
 
+  const transferMention = containsAny(text, TRANSFER_WORDS);
+
   const credentials = containsAny(text, CREDENTIAL_WORDS);
   if (credentials.length > 0) {
     score += 30;
@@ -135,11 +147,10 @@ export function computeHeuristics(input: AnalyzeInput): HeuristicResult {
     raisons.push("Le message demande de garder la demande secrete : signal classique de manipulation");
   }
 
+  // Citer une marque connue (banque, bpost, operateur...) est neutre en soi —
+  // un vrai message DE cette marque la cite aussi. Ne compte que combine a un
+  // autre signal deja suspect (voir combinaisons plus bas).
   const authority = containsAny(text, AUTHORITY_IMPERSONATION_WORDS);
-  if (authority.length > 0) {
-    score += 10;
-    raisons.push("Le message pretend venir d'une banque, administration ou service connu");
-  }
 
   const suspiciousLink = Boolean(input.link) && isSuspiciousLink(input.link!);
   if (suspiciousLink) {
@@ -158,8 +169,18 @@ export function computeHeuristics(input: AnalyzeInput): HeuristicResult {
   }
 
   if (authority.length > 0 && suspiciousLink) {
-    score += 20;
+    score += 30;
     raisons.push("Message pretendant venir d'une marque/administration connue avec un lien non officiel");
+  }
+
+  if (authority.length > 0 && credentials.length > 0) {
+    score += 10;
+    raisons.push("Message pretendant venir d'une marque/administration connue qui demande un code ou des coordonnees bancaires");
+  }
+
+  if (beneficiaryChange.length > 0 && transferMention.length > 0) {
+    score += 20;
+    raisons.push("Changement de compte annonce avec mention d'un virement/IBAN : signature classique de fraude au faux fournisseur");
   }
 
   if (input.sender && /^\+?\d[\d\s]{6,}$/.test(input.sender) && impersonation.length > 0) {
