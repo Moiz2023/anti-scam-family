@@ -103,10 +103,10 @@ export default function HomeScreen({ navigation }: Props) {
             />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={styles.statusTitle}>
+            <Text style={[styles.statusTitle, hasAlertsToday && styles.statusTitleAlert]}>
               {hasAlertsToday ? "Signal de risque détecté" : "Votre famille est protégée"}
             </Text>
-            <Text style={styles.statusSubtitle}>
+            <Text style={[styles.statusSubtitle, hasAlertsToday && styles.statusSubtitleAlert]}>
               {hasAlertsToday
                 ? `${recentEvents24h.length} message${recentEvents24h.length > 1 ? "s" : ""} à vérifier aujourd'hui`
                 : "Aucune menace détectée aujourd'hui"}
@@ -242,7 +242,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   statusTitle: { color: "#fff", fontWeight: "800", fontSize: 15.5 },
+  statusTitleAlert: { color: colors.text },
   statusSubtitle: { color: "rgba(255,255,255,0.85)", fontSize: 12.5, marginTop: 2 },
+  statusSubtitleAlert: { color: colors.textMuted },
   sectionLabel: {
     fontSize: 13,
     fontWeight: "800",
