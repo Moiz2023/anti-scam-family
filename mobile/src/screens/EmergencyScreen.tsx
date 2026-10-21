@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
 import { View, Text, Pressable, StyleSheet, ScrollView, Linking } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors, radius, spacing, shadow } from "../theme/colors";
+import { getMyLocale } from "../lib/api";
+import { countryFromLocale, COUNTRY_LABELS, type Country } from "../lib/country";
 import type { AppStackParamList } from "../navigation/RootNavigator";
 
 interface Step {
@@ -13,32 +15,96 @@ interface Step {
   action?: { label: string; icon: keyof typeof Ionicons.glyphMap; url: string };
 }
 
-const STEPS: Step[] = [
-  {
-    title: "Carte ou compte compromis",
-    body:
-      "Tu as déjà payé ou partagé un code ? Bloque immédiatement ta carte/compte. En Belgique : Card Stop, 24h/24.",
-    action: { label: "Appeler Card Stop (078 170 170)", icon: "call", url: "tel:078170170" },
-  },
-  {
-    title: "Codes itsme partagés",
-    body: "Bloque immédiatement ton application itsme depuis le menu de l'app, puis contacte ta banque.",
-  },
-  {
-    title: "Déposer plainte",
-    body: "Contacte la police locale ou rends-toi au commissariat. Conserve tous les messages et preuves.",
-    action: { label: "Appeler la police (101)", icon: "call", url: "tel:101" },
-  },
-  {
-    title: "Signaler le message suspect",
-    body: "Transfère le SMS suspect au 8222 (Suspect SMS) ou signale-le sur safeonweb.be.",
-    action: { label: "Ouvrir safeonweb.be", icon: "open-outline", url: "https://www.safeonweb.be" },
-  },
-];
+// Numeros/organismes verifies par pays (recherche web effectuee avant
+// integration — donner un faux numero dans une app de protection serait
+// pire que de ne pas en donner). Quand aucune ligne nationale fiable
+// n'existe (ex: opposition carte en FR/NL, qui varie par banque), on ne
+// l'invente pas : on renvoie vers la banque ou l'organisme officiel.
+const STEPS_BY_COUNTRY: Record<Country, Step[]> = {
+  BE: [
+    {
+      title: "Carte ou compte compromis",
+      body:
+        "Tu as déjà payé ou partagé un code ? Bloque immédiatement ta carte/compte. En Belgique : Card Stop, 24h/24.",
+      action: { label: "Appeler Card Stop (078 170 170)", icon: "call", url: "tel:078170170" },
+    },
+    {
+      title: "Codes itsme partagés",
+      body: "Bloque immédiatement ton application itsme depuis le menu de l'app, puis contacte ta banque.",
+    },
+    {
+      title: "Déposer plainte",
+      body: "Contacte la police locale ou rends-toi au commissariat. Conserve tous les messages et preuves.",
+      action: { label: "Appeler la police (101)", icon: "call", url: "tel:101" },
+    },
+    {
+      title: "Signaler le message suspect",
+      body: "Transfère le SMS suspect au 8222 (Suspect SMS) ou signale-le sur safeonweb.be.",
+      action: { label: "Ouvrir safeonweb.be", icon: "open-outline", url: "https://www.safeonweb.be" },
+    },
+  ],
+  FR: [
+    {
+      title: "Carte ou compte compromis",
+      body:
+        "Fais opposition immédiatement auprès de ta banque (numéro au dos de la carte ou dans l'app), puis signale le cas sur 17Cyber, la plateforme officielle police/gendarmerie dédiée aux fraudes bancaires.",
+      action: { label: "Ouvrir 17Cyber (aide officielle)", icon: "open-outline", url: "https://www.17cyber.gouv.fr" },
+    },
+    {
+      title: "Identifiants ou codes partagés",
+      body: "Change immédiatement tes mots de passe et contacte ta banque si des coordonnées bancaires ont été transmises.",
+    },
+    {
+      title: "Déposer plainte",
+      body: "Contacte la police ou la gendarmerie. Conserve tous les messages et preuves.",
+      action: { label: "Appeler la police (17)", icon: "call", url: "tel:17" },
+    },
+    {
+      title: "Signaler le message suspect",
+      body: "Transfère le SMS suspect au 33700, le numéro national gratuit de lutte contre les SMS frauduleux.",
+      action: {
+        label: "En savoir plus (33700)",
+        icon: "open-outline",
+        url: "https://www.economie.gouv.fr/dgccrf/sms-et-appels-indesirables-le-33-700-facilite-le-signalement-des-numeros-frauduleux",
+      },
+    },
+  ],
+  NL: [
+    {
+      title: "Kaart of rekening gecompromitteerd",
+      body: "Neem onmiddellijk contact op met je bank (nummer op je pas of in de app) om te blokkeren.",
+    },
+    {
+      title: "Wachtwoorden of codes gedeeld",
+      body: "Wijzig onmiddellijk je wachtwoorden en neem contact op met je bank.",
+    },
+    {
+      title: "Aangifte doen",
+      body: "Doe aangifte van fraude bij de politie.",
+      action: { label: "Bel de politie (0900-8844)", icon: "call", url: "tel:0900-8844" },
+    },
+    {
+      title: "Verdacht bericht melden",
+      body: "Stuur het nepbericht door naar de Fraudehelpdesk voor onderzoek en waarschuwing van anderen.",
+      action: { label: "Open fraudehelpdesk.nl", icon: "open-outline", url: "https://www.fraudehelpdesk.nl" },
+    },
+  ],
+};
 
 export default function EmergencyScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
   const insets = useSafeAreaInsets();
+  const [country, setCountry] = useState<Country>("BE");
+
+  useFocusEffect(
+    useCallback(() => {
+      getMyLocale()
+        .then((locale) => setCountry(countryFromLocale(locale)))
+        .catch((err) => console.warn("getMyLocale failed", err));
+    }, []),
+  );
+
+  const STEPS = STEPS_BY_COUNTRY[country];
 
   return (
     <ScrollView
@@ -52,13 +118,18 @@ export default function EmergencyScreen() {
           </View>
           <View>
             <Text style={styles.appName}>Anti-Scam Family</Text>
-            <Text style={styles.appSubtitle}>Urgence</Text>
+            <Text style={styles.appSubtitle}>Urgence · {COUNTRY_LABELS[country]}</Text>
           </View>
         </View>
         <Pressable style={styles.avatarButton} onPress={() => navigation.navigate("Account")}>
           <Ionicons name="person" size={18} color={colors.ink} />
         </Pressable>
       </View>
+
+      <Pressable style={styles.changeCountryLink} onPress={() => navigation.navigate("Account")}>
+        <Ionicons name="earth-outline" size={13} color={colors.textMuted} />
+        <Text style={styles.changeCountryText}>Changer de pays</Text>
+      </Pressable>
 
       <View style={styles.alertBanner}>
         <View style={styles.alertIconWrap}>
@@ -140,6 +211,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  changeCountryLink: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    alignSelf: "flex-start",
+    marginBottom: spacing.lg,
+  },
+  changeCountryText: { fontSize: 11.5, color: colors.textMuted, textDecorationLine: "underline" },
   alertBanner: {
     backgroundColor: colors.urgentBg,
     borderRadius: radius.lg,

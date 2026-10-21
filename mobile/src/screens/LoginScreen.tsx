@@ -46,9 +46,9 @@ export default function LoginScreen({ navigation }: Props) {
             <Ionicons name="shield-checkmark" size={26} color="#fff" />
           </View>
           <Text style={styles.title}>Anti-Scam Family</Text>
-          <Text style={styles.subtitle}>
-            Nous détectons et signalons des signaux de risque. Jamais une garantie de sécurité
-            absolue.
+          <Text style={styles.subtitle}>Le système de sécurité numérique de toute la famille.</Text>
+          <Text style={styles.disclaimer}>
+            Nous détectons des signaux de risque, jamais une garantie absolue.
           </Text>
         </View>
 
@@ -102,11 +102,20 @@ const styles = StyleSheet.create({
   },
   title: { fontSize: 24, fontWeight: "800", color: colors.text },
   subtitle: {
-    fontSize: 13,
+    fontSize: 15,
+    fontWeight: "700",
+    color: colors.text,
+    textAlign: "center",
+    marginTop: spacing.sm,
+    lineHeight: 20,
+    paddingHorizontal: spacing.lg,
+  },
+  disclaimer: {
+    fontSize: 11.5,
     color: colors.textMuted,
     textAlign: "center",
     marginTop: spacing.sm,
-    lineHeight: 18,
+    lineHeight: 16,
     paddingHorizontal: spacing.lg,
   },
   form: { padding: spacing.xl },

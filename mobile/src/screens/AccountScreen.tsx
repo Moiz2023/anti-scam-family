@@ -3,20 +3,44 @@ import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, Alert
 import { Ionicons } from "@expo/vector-icons";
 import { colors, radius, spacing, shadow } from "../theme/colors";
 import { supabase } from "../lib/supabase";
-import { deleteMyAccount } from "../lib/api";
+import { deleteMyAccount, getMyLocale, setMyLocale } from "../lib/api";
+import { countryFromLocale, LOCALE_FOR_COUNTRY, COUNTRY_LABELS, type Country } from "../lib/country";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { AppStackParamList } from "../navigation/RootNavigator";
 
 type Props = NativeStackScreenProps<AppStackParamList, "Account">;
 
+const COUNTRIES: Country[] = ["BE", "FR", "NL"];
+
 export default function AccountScreen({ navigation }: Props) {
   const [email, setEmail] = useState<string | null>(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [country, setCountry] = useState<Country>("BE");
+  const [savingCountry, setSavingCountry] = useState(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? null));
+    getMyLocale()
+      .then((locale) => setCountry(countryFromLocale(locale)))
+      .catch((err) => console.warn("getMyLocale failed", err));
   }, []);
+
+  async function handleSelectCountry(next: Country) {
+    if (next === country || savingCountry) return;
+    const previous = country;
+    setCountry(next);
+    setSavingCountry(true);
+    try {
+      await setMyLocale(LOCALE_FOR_COUNTRY[next]);
+    } catch (err) {
+      setCountry(previous);
+      Alert.alert("Erreur", "Impossible d'enregistrer ce pays pour le moment.");
+      console.error(err);
+    } finally {
+      setSavingCountry(false);
+    }
+  }
 
   async function handleDelete() {
     setDeleting(true);
@@ -44,6 +68,24 @@ export default function AccountScreen({ navigation }: Props) {
         <Ionicons name="log-out-outline" size={17} color={colors.text} />
         <Text style={styles.logoutButtonText}>Se déconnecter</Text>
       </Pressable>
+
+      <Text style={[styles.sectionLabel, { marginTop: spacing.xxl }]}>Pays</Text>
+      <Text style={styles.countryHint}>
+        Détermine les numéros d'urgence et organismes affichés dans l'onglet Urgence.
+      </Text>
+      <View style={styles.countryRow}>
+        {COUNTRIES.map((c) => (
+          <Pressable
+            key={c}
+            style={[styles.countryPill, country === c && styles.countryPillActive]}
+            onPress={() => handleSelectCountry(c)}
+          >
+            <Text style={[styles.countryPillText, country === c && styles.countryPillTextActive]}>
+              {COUNTRY_LABELS[c]}
+            </Text>
+          </Pressable>
+        ))}
+      </View>
 
       <Text style={[styles.sectionLabel, { marginTop: spacing.xxl }]}>Zone de danger</Text>
 
@@ -111,6 +153,20 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   logoutButtonText: { color: colors.text, fontSize: 14.5, fontWeight: "700" },
+  countryHint: { color: colors.textMuted, fontSize: 12.5, marginBottom: spacing.md, lineHeight: 17 },
+  countryRow: { flexDirection: "row", gap: spacing.sm },
+  countryPill: {
+    flex: 1,
+    alignItems: "center",
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.sm,
+    paddingVertical: spacing.md,
+  },
+  countryPillActive: { backgroundColor: colors.ink, borderColor: colors.ink },
+  countryPillText: { color: colors.text, fontSize: 13, fontWeight: "700" },
+  countryPillTextActive: { color: "#fff" },
   deleteLinkButton: {
     flexDirection: "row",
     alignItems: "center",

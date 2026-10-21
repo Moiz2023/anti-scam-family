@@ -23,6 +23,33 @@ export async function ensureProfile(): Promise<void> {
   }
 }
 
+// Pays/langue de l'utilisateur (reutilise profiles.locale existant, voir
+// src/lib/country.ts pour la conversion locale <-> pays).
+export async function getMyLocale(): Promise<string> {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return "fr-BE";
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("locale")
+    .eq("id", user.id)
+    .maybeSingle();
+  if (error) throw error;
+  return data?.locale ?? "fr-BE";
+}
+
+export async function setMyLocale(locale: string): Promise<void> {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("not_authenticated");
+
+  const { error } = await supabase.from("profiles").update({ locale }).eq("id", user.id);
+  if (error) throw error;
+}
+
 export type ScamType =
   | "fake_bank_advisor"
   | "phishing_bank"
