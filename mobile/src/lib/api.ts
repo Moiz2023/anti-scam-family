@@ -30,6 +30,7 @@ export type ScamType =
   | "parcel_bpost_dhl"
   | "tax_government"
   | "family_emergency"
+  | "law_enforcement_scam"
   | "romance_scam"
   | "investment_crypto"
   | "tech_support"
@@ -305,6 +306,26 @@ export async function fetchMyProtectors(): Promise<LinkedPerson[]> {
   if (profileError) throw profileError;
 
   return (profiles ?? []).map((p) => ({ id: p.id, full_name: p.full_name }));
+}
+
+export interface CampaignTrend {
+  scam_type: ScamType;
+  niveau: "attention" | "danger";
+  affected_count: number;
+  first_seen: string;
+  last_seen: string;
+}
+
+// "Nouvelle campagne" : vagues d'arnaques detectees sur TOUS les
+// utilisateurs (donnees agregees et anonymes, jamais de contenu individuel
+// — voir la fonction SQL get_campaign_trends).
+export async function fetchCampaignTrends(): Promise<CampaignTrend[]> {
+  const { data, error } = await supabase.rpc("get_campaign_trends", {
+    hours_window: 48,
+    min_affected: 3,
+  });
+  if (error) throw error;
+  return (data ?? []) as CampaignTrend[];
 }
 
 // Droit a l'effacement (RGPD) : supprime le compte de l'utilisateur courant

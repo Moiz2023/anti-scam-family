@@ -60,6 +60,20 @@ const BENEFICIARY_CHANGE_WORDS = [
 const IMPERSONATION_WORDS = [
   "nouveau numero", "nouveau numéro", "c'est moi", "ne me reconnais pas",
   "j'ai change de numero", "j'ai changé de numéro", "nieuw nummer",
+  "mon telephone est casse", "mon téléphone est cassé", "mon tel est tombe",
+  "mon tél est tombé", "telefoon kapot", "nieuw gsm-nummer",
+];
+
+// Signature du "faux policier" : un agent pretend proteger l'argent/bijoux de
+// la victime d'un blanchiment ou de billets contrefaits et demande de les
+// remettre en main propre ou de les deposer. Tres cible sur les personnes
+// agees en Belgique/France.
+const FAKE_OFFICER_WORDS = [
+  "agent va passer", "un collegue va passer", "un collègue va passer",
+  "remettre l'argent", "remettre vos bijoux", "remettre votre argent",
+  "garde a vue", "garde à vue", "operation de police", "opération de police",
+  "verification de billets", "vérification de billets", "blanchiment",
+  "faux-monnayage", "faux monnayage", "mettre en securite", "mettre en sécurité",
 ];
 
 const SECRECY_WORDS = [
@@ -68,10 +82,23 @@ const SECRECY_WORDS = [
   "niet vertellen", "geheim houden",
 ];
 
+// Marques/organismes couramment usurpes en Belgique et pays voisins (ordre
+// d'expansion prevu : BE -> FR -> NL). Citer une marque est neutre en soi
+// (voir plus bas) — ca ne sert qu'a renforcer un signal deja suspect.
 const AUTHORITY_IMPERSONATION_WORDS = [
+  // Belgique
   "spf finances", "impots", "impôts", "carte stop", "card stop",
   "votre banque", "service fraude", "bpost", "itsme support",
   "fraudedienst", "fod financien", "proximus", "telenet",
+  "bnp paribas fortis", "bnp paribas", "ing bank", "mijn ing",
+  "belfius", "federale politie", "police federale", "police fédérale",
+  "europol",
+  // Paiement / marketplace / livraison (BE + FR + NL)
+  "paypal", "vinted", "dhl",
+  // France
+  "la poste", "colissimo", "ameli.fr", "impots.gouv",
+  // Pays-Bas
+  "postnl", "ing belgie", "belastingdienst",
 ];
 
 // "confirm" volontairement exclu : trop generique, present dans la quasi
@@ -147,6 +174,12 @@ export function computeHeuristics(input: AnalyzeInput): HeuristicResult {
   if (secrecy.length > 0) {
     score += 20;
     raisons.push("Le message demande de garder la demande secrete : signal classique de manipulation");
+  }
+
+  const fakeOfficer = containsAny(text, FAKE_OFFICER_WORDS);
+  if (fakeOfficer.length > 0) {
+    score += 30;
+    raisons.push("Signature du \"faux policier\" : un agent demande de remettre de l'argent/bijoux en main propre — la police ne fait jamais ca");
   }
 
   // Citer une marque connue (banque, bpost, operateur...) est neutre en soi —

@@ -7,6 +7,7 @@ export const SCAM_TYPE_LABELS: Record<ScamType, string> = {
   parcel_bpost_dhl: "Faux colis",
   tax_government: "Faux SPF / administration",
   family_emergency: "Usurpation d'un proche",
+  law_enforcement_scam: "Faux policier / Europol",
   romance_scam: "Arnaque sentimentale",
   investment_crypto: "Faux investissement / crypto",
   tech_support: "Faux support technique",

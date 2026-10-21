@@ -7,6 +7,7 @@ export const SCAM_TYPES = [
   "parcel_bpost_dhl",
   "tax_government",
   "family_emergency",
+  "law_enforcement_scam",
   "romance_scam",
   "investment_crypto",
   "tech_support",
@@ -93,7 +94,24 @@ Regles strictes :
     score artificiellement haut ou bas pour compenser l'incertitude.
 11. Si confidence < 0.6, remplis "needsMoreInfo" avec UNE question courte et concrete a
     poser a l'utilisateur pour lever le doute (ex: "Avez-vous deja un contact enregistre
-    avec ce numero ?", "Attendiez-vous un colis ces derniers jours ?"). Sinon, null.`;
+    avec ce numero ?", "Attendiez-vous un colis ces derniers jours ?"). Sinon, null.
+12. Marques/organismes frequemment usurpes en Belgique et pays voisins (BE, FR, NL) : bpost,
+    DHL, PostNL, La Poste/Colissimo, SPF Finances/impots.gouv/Belastingdienst, Itsme, BNP
+    Paribas Fortis, ING, Belfius, PayPal, Vinted, police federale/Europol/Ameli. Reconnaitre
+    le nom d'une de ces marques dans le message ne suffit jamais a lui seul (un message
+    legitime de cette marque la cite aussi) : ce n'est un signal que combine a une vraie
+    demande suspecte (lien non officiel, code, paiement, changement de coordonnees).
+13. "Faux policier" (tres cible sur les personnes agees) : un soi-disant agent de police ou
+    d'Europol affirme enqueter sur du blanchiment/faux-monnayage et demande de remettre de
+    l'argent ou des bijoux en main propre a un "collegue" qui va passer, ou de les deposer
+    "en securite". La police ne demande JAMAIS ca par telephone ou message : classe
+    systematiquement en "danger" (scamType "law_enforcement_scam") des que ce schema
+    apparait, meme sans demande de paiement en ligne.
+14. "Proche en urgence" sur WhatsApp : un message dit avoir change de numero (telephone
+    casse/vole/tombe) puis demande rapidement de l'argent ou un service. Un vrai proche peut
+    changer de numero, mais la combinaison nouveau-numero + demande urgente d'argent est le
+    schema d'arnaque le plus courant sur WhatsApp en Europe : signal fort, scamType
+    "family_emergency".`;
 
 const TOOL_SCHEMA = {
   name: "submit_analysis",
@@ -276,7 +294,9 @@ du numero (indicatif pays, serie surtaxee belge 0900-0909, longueur/format inhab
 signaux heuristiques deja fournis. Les arnaques telephoniques courantes a garder en tete :
 "Wangiri" (appel tres court depuis un numero etranger inconnu, pour inciter a rappeler un
 numero surtaxe), faux support technique, faux agent bancaire/administratif qui demande de
-rappeler un numero donne dans un SMS.
+rappeler un numero donne dans un SMS, et le "faux policier" (se presente comme agent de
+police/Europol enquetant sur du blanchiment, demande de remettre de l'argent/bijoux a un
+"collegue" qui va passer — la vraie police ne fait jamais ca par telephone).
 
 Memes regles que pour un message : jamais "SAFE", toujours "aucun signal de risque detecte"
 si rien d'anormal, score 0-100 avec niveau faible/attention/danger, raisons pedagogiques.
@@ -284,9 +304,9 @@ Reste prudent avec le score si le numero n'a aucun motif reconnaissable : un num
 n'est pas en soi une preuve de fraude.
 
 Remplis aussi "scamType" (choisis le plus proche dans la liste fournie, souvent
-"tech_support"/"fake_bank_advisor"/"other_scam"/"unknown"/"legitimate" pour un numero),
-"confidence" (0-1, sois honnete si le format seul ne permet pas de trancher — c'est
-generalement le cas sans base de reputation), et "needsMoreInfo" si confidence < 0.6.`;
+"tech_support"/"fake_bank_advisor"/"law_enforcement_scam"/"other_scam"/"unknown"/"legitimate"
+pour un numero), "confidence" (0-1, sois honnete si le format seul ne permet pas de trancher
+— c'est generalement le cas sans base de reputation), et "needsMoreInfo" si confidence < 0.6.`;
 
 export async function classifyPhoneWithClaude(
   rawNumber: string,

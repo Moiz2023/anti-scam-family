@@ -6,10 +6,19 @@ import type { CompositeScreenProps } from "@react-navigation/native";
 import type { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { colors, radius, spacing, shadow } from "../theme/colors";
+import { colors, colorForNiveau, radius, spacing, shadow } from "../theme/colors";
 import { supabase } from "../lib/supabase";
 import { registerForPushNotifications } from "../lib/notifications";
-import { fetchProtectedPersons, fetchMyProtectors, fetchFamilyRiskEvents, type LinkedPerson, type RiskEvent } from "../lib/api";
+import {
+  fetchProtectedPersons,
+  fetchMyProtectors,
+  fetchFamilyRiskEvents,
+  fetchCampaignTrends,
+  type LinkedPerson,
+  type RiskEvent,
+  type CampaignTrend,
+} from "../lib/api";
+import { SCAM_TYPE_LABELS } from "../theme/scamTypes";
 import type { TabParamList, AppStackParamList } from "../navigation/RootNavigator";
 
 type Props = CompositeScreenProps<
@@ -23,6 +32,7 @@ export default function HomeScreen({ navigation }: Props) {
   const [protectedPersons, setProtectedPersons] = useState<LinkedPerson[]>([]);
   const [protectors, setProtectors] = useState<LinkedPerson[]>([]);
   const [events, setEvents] = useState<RiskEvent[]>([]);
+  const [trends, setTrends] = useState<CampaignTrend[]>([]);
   const [myId, setMyId] = useState<string | null>(null);
 
   const loadDashboard = useCallback(async () => {
@@ -32,14 +42,19 @@ export default function HomeScreen({ navigation }: Props) {
       } = await supabase.auth.getUser();
       setMyId(user?.id ?? null);
 
-      const [pp, pr, recentEvents] = await Promise.all([
+      const [pp, pr, recentEvents, campaignTrends] = await Promise.all([
         fetchProtectedPersons(),
         fetchMyProtectors(),
         fetchFamilyRiskEvents(20),
+        fetchCampaignTrends().catch((err) => {
+          console.warn("fetchCampaignTrends failed", err);
+          return [] as CampaignTrend[];
+        }),
       ]);
       setProtectedPersons(pp);
       setProtectors(pr);
       setEvents(recentEvents);
+      setTrends(campaignTrends);
     } catch (err) {
       console.error(err);
     } finally {
@@ -122,6 +137,26 @@ export default function HomeScreen({ navigation }: Props) {
           </View>
         </View>
       </View>
+
+      {trends.length > 0 && (
+        <View style={styles.trendsCard}>
+          <View style={styles.trendsHeaderRow}>
+            <Ionicons name="trending-up" size={15} color={colors.urgentText} />
+            <Text style={styles.trendsTitle}>Vagues d'arnaques en cours</Text>
+          </View>
+          <Text style={styles.trendsSubtitle}>Détectées dans les dernières 48h, tous utilisateurs confondus.</Text>
+          {trends.slice(0, 3).map((t) => (
+            <View key={`${t.scam_type}-${t.niveau}`} style={styles.trendRow}>
+              <View style={[styles.trendDot, { backgroundColor: colorForNiveau(t.niveau) }]} />
+              <Text style={styles.trendText}>
+                <Text style={styles.trendTextBold}>{SCAM_TYPE_LABELS[t.scam_type] ?? t.scam_type}</Text>
+                {" — "}
+                {t.affected_count} personne{t.affected_count > 1 ? "s" : ""} touchée{t.affected_count > 1 ? "s" : ""}
+              </Text>
+            </View>
+          ))}
+        </View>
+      )}
 
       <View style={styles.darkCard}>
         <Text style={styles.darkCardEyebrow}>VÉRIFICATION RAPIDE</Text>
@@ -231,6 +266,19 @@ const styles = StyleSheet.create({
   statChipTextWrap: { flex: 1, flexShrink: 1 },
   statChipValue: { fontSize: 13.5, fontWeight: "800", color: colors.text },
   statChipLabel: { fontSize: 10.5, color: colors.textMuted, marginTop: 1, flexWrap: "wrap" },
+  trendsCard: {
+    backgroundColor: colors.urgentBg,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+    marginBottom: spacing.lg,
+  },
+  trendsHeaderRow: { flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 2 },
+  trendsTitle: { fontSize: 13.5, fontWeight: "800", color: colors.text },
+  trendsSubtitle: { fontSize: 11, color: colors.textMuted, marginBottom: spacing.sm },
+  trendRow: { flexDirection: "row", alignItems: "flex-start", gap: spacing.sm, marginTop: spacing.xs },
+  trendDot: { width: 7, height: 7, borderRadius: 4, marginTop: 5 },
+  trendText: { flex: 1, fontSize: 12.5, color: colors.text, lineHeight: 17 },
+  trendTextBold: { fontWeight: "800" },
   darkCard: {
     backgroundColor: colors.ink,
     borderRadius: radius.lg,
