@@ -44,7 +44,7 @@ export default function ConsentScreen({ navigation }: Props) {
   return (
     <ScrollView style={{ backgroundColor: colors.background }} contentContainerStyle={styles.container}>
       <View style={styles.iconBadge}>
-        <Ionicons name="shield-checkmark" size={26} color={colors.brand} />
+        <Ionicons name="shield-checkmark" size={26} color="#fff" />
       </View>
       <Text style={styles.title}>Avant de partager tes alertes</Text>
       <Text style={styles.subtitle}>
@@ -69,7 +69,7 @@ export default function ConsentScreen({ navigation }: Props) {
       ))}
 
       <View style={styles.noteCard}>
-        <Ionicons name="information-circle" size={16} color={colors.brand} />
+        <Ionicons name="information-circle" size={16} color={colors.ink} />
         <Text style={styles.noteText}>
           Tu peux désactiver ce partage à tout moment depuis l'écran "Ma famille".
         </Text>
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
     width: 52,
     height: 52,
     borderRadius: radius.md,
-    backgroundColor: colors.brandSoft,
+    backgroundColor: colors.ink,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: spacing.lg,
@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
   noteCard: {
     flexDirection: "row",
     gap: spacing.sm,
-    backgroundColor: colors.brandSoft,
+    backgroundColor: colors.pillInactive,
     borderRadius: radius.md,
     padding: spacing.lg,
     marginTop: spacing.lg,
@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
   },
   noteText: { flex: 1, color: colors.text, fontSize: 12.5, lineHeight: 18 },
   acceptButton: {
-    backgroundColor: colors.brand,
+    backgroundColor: colors.ink,
     borderRadius: radius.sm,
     paddingVertical: spacing.lg,
     alignItems: "center",

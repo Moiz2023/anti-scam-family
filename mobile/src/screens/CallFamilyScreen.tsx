@@ -24,7 +24,7 @@ export default function CallFamilyScreen() {
         contacts habituel pour les joindre.
       </Text>
 
-      {loading && <ActivityIndicator style={{ marginTop: 24 }} color={colors.attention} />}
+      {loading && <ActivityIndicator style={{ marginTop: 24 }} color={colors.ink} />}
 
       {!loading && protectors.length === 0 && (
         <View style={styles.emptyCard}>
@@ -78,14 +78,14 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: radius.pill,
-    backgroundColor: colors.attentionSoft,
+    backgroundColor: colors.pillInactive,
     alignItems: "center",
     justifyContent: "center",
   },
-  avatarText: { color: colors.attention, fontWeight: "800", fontSize: 16 },
+  avatarText: { color: colors.ink, fontWeight: "800", fontSize: 16 },
   name: { flex: 1, fontSize: 16, fontWeight: "700", color: colors.text },
   callButton: {
-    backgroundColor: colors.attention,
+    backgroundColor: colors.ink,
     borderRadius: radius.sm,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,

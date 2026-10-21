@@ -11,10 +11,9 @@ import {
   Platform,
   ScrollView,
 } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { supabase } from "../lib/supabase";
-import { colors, gradients, radius, spacing, shadow } from "../theme/colors";
+import { colors, radius, spacing, shadow } from "../theme/colors";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { AuthStackParamList } from "../navigation/RootNavigator";
 
@@ -79,50 +78,50 @@ export default function RegisterScreen({ navigation }: Props) {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
-      <LinearGradient colors={gradients.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.hero}>
-        <View style={styles.badge}>
-          <Ionicons name="people" size={26} color="#fff" />
+        <View style={styles.hero}>
+          <View style={styles.badge}>
+            <Ionicons name="people" size={26} color="#fff" />
+          </View>
+          <Text style={styles.title}>Créer un compte</Text>
+          <Text style={styles.subtitle}>
+            Je protège mes parents, ou mes proches me protègent : les deux sens sont possibles.
+          </Text>
         </View>
-        <Text style={styles.title}>Créer un compte</Text>
-        <Text style={styles.subtitle}>
-          Je protège mes parents, ou mes proches me protègent : les deux sens sont possibles.
-        </Text>
-      </LinearGradient>
 
-      <View style={styles.form}>
-        <TextInput
-          style={styles.input}
-          placeholder="Prénom et nom"
-          placeholderTextColor={colors.textMuted}
-          value={fullName}
-          onChangeText={setFullName}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          placeholderTextColor={colors.textMuted}
-          autoCapitalize="none"
-          keyboardType="email-address"
-          value={email}
-          onChangeText={setEmail}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Mot de passe"
-          placeholderTextColor={colors.textMuted}
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
-        />
+        <View style={styles.form}>
+          <TextInput
+            style={styles.input}
+            placeholder="Prénom et nom"
+            placeholderTextColor={colors.textMuted}
+            value={fullName}
+            onChangeText={setFullName}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            placeholderTextColor={colors.textMuted}
+            autoCapitalize="none"
+            keyboardType="email-address"
+            value={email}
+            onChangeText={setEmail}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Mot de passe"
+            placeholderTextColor={colors.textMuted}
+            secureTextEntry
+            value={password}
+            onChangeText={setPassword}
+          />
 
-        <Pressable style={styles.button} onPress={handleRegister} disabled={loading}>
-          {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Créer mon compte</Text>}
-        </Pressable>
+          <Pressable style={styles.button} onPress={handleRegister} disabled={loading}>
+            {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Créer mon compte</Text>}
+          </Pressable>
 
-        <Pressable onPress={() => navigation.navigate("Login")}>
-          <Text style={styles.link}>Déjà un compte ? Se connecter</Text>
-        </Pressable>
-      </View>
+          <Pressable onPress={() => navigation.navigate("Login")}>
+            <Text style={styles.link}>Déjà un compte ? Se connecter</Text>
+          </Pressable>
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -131,28 +130,27 @@ export default function RegisterScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   hero: {
     paddingTop: 72,
-    paddingBottom: spacing.xxl,
+    paddingBottom: spacing.xl,
     paddingHorizontal: spacing.xl,
-    borderBottomLeftRadius: radius.lg,
-    borderBottomRightRadius: radius.lg,
     alignItems: "center",
   },
   badge: {
     width: 52,
     height: 52,
     borderRadius: radius.md,
-    backgroundColor: "rgba(255,255,255,0.18)",
+    backgroundColor: colors.ink,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: spacing.md,
   },
-  title: { fontSize: 24, fontWeight: "800", color: "#fff" },
+  title: { fontSize: 24, fontWeight: "800", color: colors.text },
   subtitle: {
     fontSize: 13,
-    color: "rgba(255,255,255,0.88)",
+    color: colors.textMuted,
     textAlign: "center",
     marginTop: spacing.sm,
     lineHeight: 18,
+    paddingHorizontal: spacing.lg,
   },
   form: { padding: spacing.xl },
   input: {
@@ -167,7 +165,7 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   button: {
-    backgroundColor: colors.brand,
+    backgroundColor: colors.ink,
     borderRadius: radius.sm,
     paddingVertical: spacing.lg,
     alignItems: "center",
@@ -175,5 +173,5 @@ const styles = StyleSheet.create({
     ...shadow.button,
   },
   buttonText: { color: "#fff", fontSize: 16, fontWeight: "700" },
-  link: { color: colors.brand, textAlign: "center", marginTop: spacing.xl, fontWeight: "600" },
+  link: { color: colors.ink, textAlign: "center", marginTop: spacing.xl, fontWeight: "600" },
 });

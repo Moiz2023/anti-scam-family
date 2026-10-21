@@ -95,7 +95,7 @@ export default function ResultScreen({ route, navigation }: Props) {
 
       {result.needsMoreInfo && (
         <View style={styles.questionCard}>
-          <Ionicons name="help-circle" size={18} color={colors.help} />
+          <Ionicons name="help-circle" size={18} color={colors.ink} />
           <View style={{ flex: 1 }}>
             <Text style={styles.questionLabel}>Pour affiner l'analyse</Text>
             <Text style={styles.questionText}>{result.needsMoreInfo}</Text>
@@ -105,7 +105,7 @@ export default function ResultScreen({ route, navigation }: Props) {
 
       {isPhoneCheck && result.niveau === "faible" && (
         <View style={styles.hintCard}>
-          <Ionicons name="information-circle" size={18} color={colors.brand} />
+          <Ionicons name="information-circle" size={18} color={colors.ink} />
           <Text style={styles.hintText}>
             Ce score ne couvre que le format du numéro (pas de base de réputation en temps
             réel). Si ce numéro vous a aussi envoyé un message ou un lien, vérifiez-le
@@ -198,17 +198,17 @@ const styles = StyleSheet.create({
   questionCard: {
     flexDirection: "row",
     gap: spacing.sm,
-    backgroundColor: colors.helpSoft,
+    backgroundColor: colors.pillInactive,
     borderRadius: radius.md,
     padding: spacing.lg,
     marginTop: spacing.lg,
   },
-  questionLabel: { color: colors.help, fontSize: 12, fontWeight: "800", marginBottom: 2 },
+  questionLabel: { color: colors.ink, fontSize: 12, fontWeight: "800", marginBottom: 2 },
   questionText: { color: colors.text, fontSize: 13.5, lineHeight: 19 },
   hintCard: {
     flexDirection: "row",
     gap: spacing.sm,
-    backgroundColor: colors.brandSoft,
+    backgroundColor: colors.pillInactive,
     borderRadius: radius.md,
     padding: spacing.lg,
     marginTop: spacing.lg,

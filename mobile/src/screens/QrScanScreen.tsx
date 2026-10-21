@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     lineHeight: 19,
   },
   permissionButton: {
-    backgroundColor: colors.brand,
+    backgroundColor: colors.ink,
     borderRadius: radius.sm,
     paddingVertical: spacing.lg,
     paddingHorizontal: spacing.xxl,
