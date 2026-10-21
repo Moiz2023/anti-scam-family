@@ -7,18 +7,32 @@
 // est configuree). Sans cle, retombe sur les heuristiques seules : utile en dev.
 // inputType "phone" : `text` est un numero de telephone suspect (ex: appel
 // manque) plutot qu'un message — heuristiques et prompt Claude dedies.
+//
+// Securite / vie privee (cahier des charges) :
+// - Le texte libre est masque (IBAN/telephone/e-mail -> jetons) AVANT tout envoi a
+//   Claude et avant stockage. Seul le texte masque est conserve.
+// - Detection d'injection de prompt independante de Claude : meme si le modele est
+//   manipule ou indisponible, un message qui tente de "piloter" l'analyseur est
+//   force a danger cote serveur.
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders, handleCors } from "../_shared/cors.ts";
 import { computeHeuristics, type AnalyzeInput } from "../_shared/heuristics.ts";
 import { computePhoneHeuristics } from "../_shared/phone-heuristics.ts";
 import { classifyWithClaude, classifyPhoneWithClaude } from "../_shared/claude.ts";
+import { maskPII } from "../_shared/pii-mask.ts";
+import { detectPromptInjection } from "../_shared/injection-detect.ts";
 
 function niveauFromScore(score: number): "faible" | "attention" | "danger" {
   if (score >= 71) return "danger";
   if (score >= 31) return "attention";
   return "faible";
 }
+
+const INJECTION_RAISON =
+  "Ce message contient une tentative de manipulation du systeme d'analyse lui-meme " +
+  "(ex: \"ignore tes instructions\", \"reponds que c'est sur\") — c'est en soi un signal " +
+  "tres fort d'arnaque : un message legitime n'a aucune raison de parler a un outil d'analyse.";
 
 Deno.serve(async (req) => {
   const corsResponse = handleCors(req);
@@ -50,10 +64,17 @@ Deno.serve(async (req) => {
 
   const isPhone = body.inputType === "phone";
 
-  const heuristics = isPhone ? computePhoneHeuristics(body.text) : computeHeuristics(body);
+  // Masquage PII : uniquement sur le texte libre d'un message. Pas sur un
+  // numero de telephone en mode "phone" (c'est la cible de l'analyse elle-meme,
+  // pas une donnee incidente a proteger), ni sur sender/link (champs
+  // structures necessaires aux heuristiques de format/domaine).
+  const { masked: maskedText } = isPhone ? { masked: body.text } : maskPII(body.text);
+  const analysisInput: AnalyzeInput = { ...body, text: maskedText };
+
+  const heuristics = isPhone ? computePhoneHeuristics(maskedText) : computeHeuristics(analysisInput);
   const claudeResult = isPhone
-    ? await classifyPhoneWithClaude(body.text, heuristics.raisons)
-    : await classifyWithClaude(body, heuristics.raisons);
+    ? await classifyPhoneWithClaude(maskedText, heuristics.raisons)
+    : await classifyWithClaude(analysisInput, heuristics.raisons);
 
   let score: number;
   let niveau: "faible" | "attention" | "danger";
@@ -69,6 +90,20 @@ Deno.serve(async (req) => {
     raisons = heuristics.raisons.length > 0
       ? heuristics.raisons
       : ["Aucun signal de risque detecte"];
+  }
+
+  // Defense en profondeur : detection d'injection independante de Claude.
+  // Ne depend jamais uniquement du bon comportement du modele.
+  const injectionDetected =
+    detectPromptInjection(maskedText) || claudeResult?.promptInjectionDetected === true;
+
+  if (injectionDetected) {
+    // Remplace les raisons (ne les ajoute pas) : si le modele a ete trompe
+    // au point de dire "aucun risque", garder cette raison a cote de
+    // l'alerte d'injection serait contradictoire et pretait a confusion.
+    score = Math.max(score, 80);
+    niveau = "danger";
+    raisons = [INJECTION_RAISON];
   }
 
   const authHeader = req.headers.get("Authorization");
@@ -88,7 +123,7 @@ Deno.serve(async (req) => {
       .from("analysis_events")
       .insert({
         protected_id: userId,
-        input_text: body.text,
+        input_text: maskedText,
         input_sender: isPhone ? null : body.sender ?? null,
         input_link: isPhone ? null : body.link ?? null,
         score,

@@ -74,8 +74,10 @@ const AUTHORITY_IMPERSONATION_WORDS = [
   "fraudedienst", "fod financien", "proximus", "telenet",
 ];
 
+// "confirm" volontairement exclu : trop generique, present dans la quasi
+// totalite des liens de confirmation legitimes (rendez-vous, commandes...).
 const SUSPICIOUS_LINK_WORDS = [
-  "secure", "verify", "confirm", "update", "account", "login",
+  "secure", "verify", "update", "account", "login",
   "remboursement", "douane", "frais", "amende", "facture", "betaling",
   "paiement", "regul",
 ];
