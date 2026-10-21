@@ -38,6 +38,13 @@ module.exports = {
             "Anti-Scam Family utilise l'appareil photo pour scanner un QR code (ex: amende de stationnement) et verifier le lien avant de payer.",
         },
       ],
+      [
+        "expo-image-picker",
+        {
+          photosPermission:
+            "Anti-Scam Family a besoin d'acceder a vos photos pour analyser une capture d'ecran de message suspect.",
+        },
+      ],
     ],
   },
 };

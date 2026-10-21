@@ -31,16 +31,33 @@ export interface AnalyzeResult {
 }
 
 export async function analyzeMessage(input: {
-  text: string;
+  text?: string;
   sender?: string;
   link?: string;
   source?: "manual" | "share";
-  inputType?: "message" | "phone";
+  inputType?: "message" | "phone" | "screenshot";
+  imageBase64?: string;
+  imageMediaType?: string;
 }): Promise<AnalyzeResult> {
   const { data, error } = await supabase.functions.invoke("analyze", {
     body: input,
   });
-  if (error) throw error;
+  if (error) {
+    // supabase-js n'expose pas toujours le JSON d'erreur structure de facon
+    // uniforme selon le code de statut : on essaie de recuperer notre
+    // message, sinon on relance l'erreur generique.
+    const context = (error as { context?: Response }).context;
+    let customMessage: string | undefined;
+    if (context) {
+      try {
+        const responseBody = await context.clone().json();
+        customMessage = responseBody?.message;
+      } catch {
+        // pas de JSON exploitable, on retombe sur l'erreur generique
+      }
+    }
+    throw customMessage ? new Error(customMessage) : error;
+  }
   return data as AnalyzeResult;
 }
 
