@@ -37,17 +37,28 @@ export default function RegisterScreen({ navigation }: Props) {
     }
 
     setLoading(true);
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    // full_name passe en metadata (pas seulement insere directement) : si la
+    // confirmation d'e-mail est activee, `data.session` est encore null ici
+    // et l'insert direct echouerait (RLS exige une session valide). La
+    // metadata, elle, survit jusqu'a la premiere connexion reelle, ou
+    // AuthContext cree le profil de facon fiable via ensureProfile().
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { full_name: fullName } },
+    });
     if (error) {
       setLoading(false);
       Alert.alert("Inscription impossible", error.message);
       return;
     }
 
-    if (data.user) {
+    if (data.user && data.session) {
+      // Session immediatement active (confirmation e-mail desactivee, ex. en
+      // dev local) : on peut creer le profil tout de suite.
       const { error: profileError } = await supabase
         .from("profiles")
-        .insert({ id: data.user.id, full_name: fullName });
+        .upsert({ id: data.user.id, full_name: fullName }, { onConflict: "id" });
       if (profileError) console.warn("profile insert error", profileError);
     }
 

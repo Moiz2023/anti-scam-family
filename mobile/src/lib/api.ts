@@ -1,5 +1,28 @@
 import { supabase } from "./supabase";
 
+// Garantit qu'une ligne profiles existe pour l'utilisateur connecte. Doit
+// etre idempotent et appele a chaque connexion : si l'inscription a eu lieu
+// avec confirmation d'e-mail active, la session n'existait pas encore au
+// moment du signUp et la creation du profil dans RegisterScreen a pu
+// echouer silencieusement (RLS bloque un insert sans session valide) — ce
+// filet de securite evite qu'un compte reste durablement sans profil.
+export async function ensureProfile(): Promise<void> {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return;
+
+  const fullName = (user.user_metadata?.full_name as string | undefined) ?? null;
+
+  const { error } = await supabase
+    .from("profiles")
+    .upsert({ id: user.id, full_name: fullName }, { onConflict: "id", ignoreDuplicates: true });
+
+  if (error) {
+    console.warn("ensureProfile failed", error);
+  }
+}
+
 export type ScamType =
   | "fake_bank_advisor"
   | "phishing_bank"
@@ -107,7 +130,7 @@ export async function getSharingConsentStatus(): Promise<boolean> {
     .from("profiles")
     .select("consent_sharing_at")
     .eq("id", user.id)
-    .single();
+    .maybeSingle();
   if (error) throw error;
   return Boolean(data?.consent_sharing_at);
 }
