@@ -78,6 +78,49 @@ export async function registerPushToken(expoPushToken: string, deviceName?: stri
   if (error) throw error;
 }
 
+// Consentement de partage (cahier des charges : explicite, avec ecran de
+// transparence, requis AVANT qu'un proche puisse voir la moindre alerte).
+export async function getSharingConsentStatus(): Promise<boolean> {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return false;
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("consent_sharing_at")
+    .eq("id", user.id)
+    .single();
+  if (error) throw error;
+  return Boolean(data?.consent_sharing_at);
+}
+
+export async function grantSharingConsent(): Promise<void> {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("not_authenticated");
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({ consent_sharing_at: new Date().toISOString() })
+    .eq("id", user.id);
+  if (error) throw error;
+}
+
+export async function revokeSharingConsent(): Promise<void> {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("not_authenticated");
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({ consent_sharing_at: null })
+    .eq("id", user.id);
+  if (error) throw error;
+}
+
 export async function createInviteCode(): Promise<string> {
   const code = Math.random().toString(36).slice(2, 8).toUpperCase();
   const {

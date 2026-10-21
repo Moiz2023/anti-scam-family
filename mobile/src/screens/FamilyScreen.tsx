@@ -11,7 +11,8 @@ import {
   RefreshControl,
   Share,
 } from "react-native";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 import { colors, colorForNiveau, softColorForNiveau, labelForNiveau, radius, spacing, shadow } from "../theme/colors";
 import {
@@ -21,28 +22,35 @@ import {
   fetchMyProtectors,
   fetchPendingChecksWithEvents,
   respondFamilyCheck,
+  getSharingConsentStatus,
+  revokeSharingConsent,
   type LinkedPerson,
   type FamilyCheckWithEvent,
 } from "../lib/api";
+import type { AppStackParamList } from "../navigation/RootNavigator";
 
 export default function FamilyScreen() {
+  const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
   const [protectedPersons, setProtectedPersons] = useState<LinkedPerson[]>([]);
   const [protectors, setProtectors] = useState<LinkedPerson[]>([]);
   const [pendingChecks, setPendingChecks] = useState<FamilyCheckWithEvent[]>([]);
   const [codeInput, setCodeInput] = useState("");
   const [loading, setLoading] = useState(true);
   const [busyCheckId, setBusyCheckId] = useState<string | null>(null);
+  const [sharingConsent, setSharingConsent] = useState(false);
 
   const loadAll = useCallback(async () => {
     try {
-      const [pp, pr, checks] = await Promise.all([
+      const [pp, pr, checks, consent] = await Promise.all([
         fetchProtectedPersons(),
         fetchMyProtectors(),
         fetchPendingChecksWithEvents(),
+        getSharingConsentStatus(),
       ]);
       setProtectedPersons(pp);
       setProtectors(pr);
       setPendingChecks(checks);
+      setSharingConsent(consent);
     } catch (err) {
       console.error(err);
     } finally {
@@ -57,6 +65,10 @@ export default function FamilyScreen() {
   );
 
   async function handleGenerateCode() {
+    if (!sharingConsent) {
+      navigation.navigate("Consent");
+      return;
+    }
     try {
       const code = await createInviteCode();
       Alert.alert(
@@ -66,6 +78,20 @@ export default function FamilyScreen() {
       Share.share({ message: `Rejoins-moi sur Anti-Scam Family avec le code ${code}` });
     } catch (err) {
       Alert.alert("Erreur", "Impossible de générer un code pour le moment.");
+      console.error(err);
+    }
+  }
+
+  async function handleRevokeConsent() {
+    try {
+      await revokeSharingConsent();
+      setSharingConsent(false);
+      Alert.alert(
+        "Partage désactivé",
+        "Les proches déjà liés ne verront plus vos nouvelles alertes tant que vous ne réactivez pas le partage.",
+      );
+    } catch (err) {
+      Alert.alert("Erreur", "Impossible de désactiver le partage pour le moment.");
       console.error(err);
     }
   }
@@ -190,6 +216,23 @@ export default function FamilyScreen() {
         <Ionicons name="qr-code" size={16} color="#fff" />
         <Text style={styles.primaryButtonText}>Générer un code d'invitation</Text>
       </Pressable>
+
+      {sharingConsent ? (
+        <View style={styles.consentRow}>
+          <Ionicons name="checkmark-circle" size={14} color={colors.faible} />
+          <Text style={styles.consentActiveText}>Partage de mes alertes activé</Text>
+          <Pressable onPress={handleRevokeConsent}>
+            <Text style={styles.consentRevokeLink}>Désactiver</Text>
+          </Pressable>
+        </View>
+      ) : (
+        <Pressable style={styles.consentRow} onPress={() => navigation.navigate("Consent")}>
+          <Ionicons name="information-circle-outline" size={14} color={colors.textMuted} />
+          <Text style={styles.consentInactiveText}>
+            Voir ce qui sera partagé avec tes proches
+          </Text>
+        </Pressable>
+      )}
     </ScrollView>
   );
 }
@@ -270,6 +313,17 @@ const styles = StyleSheet.create({
     ...shadow.button,
   },
   primaryButtonText: { color: "#fff", fontWeight: "700" },
+  consentRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
+    marginTop: spacing.md,
+    paddingVertical: spacing.sm,
+    justifyContent: "center",
+  },
+  consentActiveText: { color: colors.faible, fontSize: 12.5, fontWeight: "600" },
+  consentRevokeLink: { color: colors.textMuted, fontSize: 12.5, fontWeight: "600", textDecorationLine: "underline", marginLeft: spacing.sm },
+  consentInactiveText: { color: colors.textMuted, fontSize: 12.5, textDecorationLine: "underline" },
   alertCard: {
     backgroundColor: colors.surface,
     borderRadius: radius.md,
