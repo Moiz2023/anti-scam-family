@@ -1,7 +1,7 @@
 // POST /functions/v1/analyze
 // Entree : { text: string, sender?: string, link?: string, source?: "manual"|"share",
 //            inputType?: "message"|"phone" }
-// Sortie : { id, score, niveau, raisons[] }
+// Sortie : { id, score, niveau, raisons[], confidence, scamType, needsMoreInfo }
 //
 // Combine heuristiques deterministes + classification Claude (si ANTHROPIC_API_KEY
 // est configuree). Sans cle, retombe sur les heuristiques seules : utile en dev.
@@ -79,17 +79,28 @@ Deno.serve(async (req) => {
   let score: number;
   let niveau: "faible" | "attention" | "danger";
   let raisons: string[];
+  let confidence: number;
+  let scamType: string;
+  let needsMoreInfo: string | null;
 
   if (claudeResult) {
     score = claudeResult.score;
     niveau = claudeResult.niveau;
     raisons = claudeResult.raisons;
+    confidence = claudeResult.confidence;
+    scamType = claudeResult.scamType;
+    needsMoreInfo = claudeResult.needsMoreInfo;
   } else {
     score = heuristics.heuristicScore;
     niveau = niveauFromScore(score);
     raisons = heuristics.raisons.length > 0
       ? heuristics.raisons
       : ["Aucun signal de risque detecte"];
+    // Pas de notion de confiance/categorie fiable sans Claude : on reste
+    // volontairement modeste plutot que d'inventer une fausse precision.
+    confidence = 0.5;
+    scamType = "unknown";
+    needsMoreInfo = null;
   }
 
   // Defense en profondeur : detection d'injection independante de Claude.
@@ -104,6 +115,9 @@ Deno.serve(async (req) => {
     score = Math.max(score, 80);
     niveau = "danger";
     raisons = [INJECTION_RAISON];
+    confidence = 0.95;
+    scamType = "other_scam";
+    needsMoreInfo = null;
   }
 
   const authHeader = req.headers.get("Authorization");
@@ -129,6 +143,9 @@ Deno.serve(async (req) => {
         score,
         niveau,
         raisons,
+        confidence,
+        scam_type: scamType,
+        needs_more_info: needsMoreInfo,
         source: isPhone ? "phone" : body.source ?? "manual",
       })
       .select("id")
@@ -142,7 +159,7 @@ Deno.serve(async (req) => {
   }
 
   return new Response(
-    JSON.stringify({ id: eventId, score, niveau, raisons }),
+    JSON.stringify({ id: eventId, score, niveau, raisons, confidence, scamType, needsMoreInfo }),
     { headers: { ...corsHeaders, "content-type": "application/json" } },
   );
 });

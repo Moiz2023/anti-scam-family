@@ -11,6 +11,7 @@ import {
   shadow,
 } from "../theme/colors";
 import { requestFamilyCheck, submitAnalysisFeedback } from "../lib/api";
+import { SCAM_TYPE_LABELS } from "../theme/scamTypes";
 import ScoreGauge from "../components/ScoreGauge";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { AppStackParamList } from "../navigation/RootNavigator";
@@ -83,7 +84,24 @@ export default function ResultScreen({ route, navigation }: Props) {
         {result.niveau === "danger" && (
           <Text style={styles.warning}>Ne payez pas avant vérification familiale.</Text>
         )}
+        {result.scamType && result.scamType !== "unknown" && (
+          <View style={styles.scamTypeBadge}>
+            <Text style={[styles.scamTypeText, { color: niveauColor }]}>
+              {SCAM_TYPE_LABELS[result.scamType]}
+            </Text>
+          </View>
+        )}
       </View>
+
+      {result.needsMoreInfo && (
+        <View style={styles.questionCard}>
+          <Ionicons name="help-circle" size={18} color={colors.help} />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.questionLabel}>Pour affiner l'analyse</Text>
+            <Text style={styles.questionText}>{result.needsMoreInfo}</Text>
+          </View>
+        </View>
+      )}
 
       {isPhoneCheck && result.niveau === "faible" && (
         <View style={styles.hintCard}>
@@ -169,6 +187,24 @@ const styles = StyleSheet.create({
     textAlign: "center",
     paddingHorizontal: spacing.xl,
   },
+  scamTypeBadge: {
+    marginTop: spacing.sm,
+    backgroundColor: "rgba(255,255,255,0.6)",
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 4,
+  },
+  scamTypeText: { fontSize: 12, fontWeight: "700" },
+  questionCard: {
+    flexDirection: "row",
+    gap: spacing.sm,
+    backgroundColor: colors.helpSoft,
+    borderRadius: radius.md,
+    padding: spacing.lg,
+    marginTop: spacing.lg,
+  },
+  questionLabel: { color: colors.help, fontSize: 12, fontWeight: "800", marginBottom: 2 },
+  questionText: { color: colors.text, fontSize: 13.5, lineHeight: 19 },
   hintCard: {
     flexDirection: "row",
     gap: spacing.sm,

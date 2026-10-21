@@ -1,10 +1,33 @@
 import { supabase } from "./supabase";
 
+export type ScamType =
+  | "fake_bank_advisor"
+  | "phishing_bank"
+  | "itsme_phishing"
+  | "parcel_bpost_dhl"
+  | "tax_government"
+  | "family_emergency"
+  | "romance_scam"
+  | "investment_crypto"
+  | "tech_support"
+  | "utilities_telecom"
+  | "health_mutuality"
+  | "marketplace_scam"
+  | "prize_lottery"
+  | "job_scam"
+  | "subscription_trap"
+  | "other_scam"
+  | "legitimate"
+  | "unknown";
+
 export interface AnalyzeResult {
   id: string | null;
   score: number;
   niveau: "faible" | "attention" | "danger";
   raisons: string[];
+  confidence?: number;
+  scamType?: ScamType;
+  needsMoreInfo?: string | null;
 }
 
 export async function analyzeMessage(input: {
