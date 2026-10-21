@@ -15,7 +15,7 @@ export default function QrScanScreen({ navigation }: Props) {
   function handleScanned(result: BarcodeScanningResult) {
     if (scanned) return;
     setScanned(true);
-    navigation.replace("Check", { prefillLink: result.data });
+    navigation.replace("Tabs", { screen: "ScanTab", params: { prefillLink: result.data } });
   }
 
   if (!permission) {

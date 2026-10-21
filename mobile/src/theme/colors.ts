@@ -28,6 +28,17 @@ export const colors = {
   darkAlt: "#201D3C",
 
   white: "#FFFFFF",
+
+  // Palette "KinShield" (maquette) : utilisee par les ecrans a onglets
+  // (Dashboard / Scan / Activite / Urgence). Noir/blanc dominant, la couleur
+  // sert uniquement a signaler le niveau de risque — jamais de decor.
+  ink: "#13151F",
+  inkSoft: "rgba(19,21,31,0.06)",
+  pillInactive: "#EEF0F6",
+  urgentBg: "#FCE4E4",
+  urgentText: "#C23B3B",
+  safeBg: "#D9F7E6",
+  safeText: "#1C8F5A",
 };
 
 export const gradients = {

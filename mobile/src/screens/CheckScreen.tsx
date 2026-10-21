@@ -15,15 +15,22 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
 import * as ImagePicker from "expo-image-picker";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors, radius, spacing, shadow } from "../theme/colors";
 import { analyzeMessage } from "../lib/api";
+import type { CompositeScreenProps } from "@react-navigation/native";
+import type { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import type { AppStackParamList } from "../navigation/RootNavigator";
+import type { TabParamList, AppStackParamList } from "../navigation/RootNavigator";
 
-type Props = NativeStackScreenProps<AppStackParamList, "Check">;
+type Props = CompositeScreenProps<
+  BottomTabScreenProps<TabParamList, "ScanTab">,
+  NativeStackScreenProps<AppStackParamList>
+>;
 type Mode = "message" | "phone" | "screenshot";
 
 export default function CheckScreen({ navigation, route }: Props) {
+  const insets = useSafeAreaInsets();
   const prefillLink = route.params?.prefillLink;
   const [mode, setMode] = useState<Mode>("message");
   const [text, setText] = useState(prefillLink ?? "");
@@ -123,7 +130,7 @@ export default function CheckScreen({ navigation, route }: Props) {
       style={{ flex: 1, backgroundColor: colors.background }}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
-      <ScrollView contentContainerStyle={styles.container}>
+      <ScrollView contentContainerStyle={[styles.container, { paddingTop: insets.top + spacing.lg }]}>
         <View style={styles.modeSwitch}>
           <Pressable
             style={[styles.modeButton, mode === "message" && styles.modeButtonActive]}
@@ -167,11 +174,11 @@ export default function CheckScreen({ navigation, route }: Props) {
 
             <View style={styles.quickActionsRow}>
               <Pressable style={styles.quickAction} onPress={handlePaste}>
-                <Ionicons name="clipboard-outline" size={15} color={colors.brand} />
+                <Ionicons name="clipboard-outline" size={15} color={colors.ink} />
                 <Text style={styles.quickActionText}>Coller</Text>
               </Pressable>
               <Pressable style={styles.quickAction} onPress={() => navigation.navigate("QrScan")}>
-                <Ionicons name="qr-code-outline" size={15} color={colors.brand} />
+                <Ionicons name="qr-code-outline" size={15} color={colors.ink} />
                 <Text style={styles.quickActionText}>Scanner un QR code</Text>
               </Pressable>
             </View>
@@ -226,13 +233,13 @@ export default function CheckScreen({ navigation, route }: Props) {
               <View style={styles.previewWrap}>
                 <Image source={{ uri: screenshot.uri }} style={styles.preview} resizeMode="cover" />
                 <Pressable style={styles.changeImageButton} onPress={handlePickScreenshot}>
-                  <Ionicons name="swap-horizontal" size={14} color={colors.brand} />
+                  <Ionicons name="swap-horizontal" size={14} color={colors.ink} />
                   <Text style={styles.changeImageText}>Changer d'image</Text>
                 </Pressable>
               </View>
             ) : (
               <Pressable style={styles.pickButton} onPress={handlePickScreenshot}>
-                <Ionicons name="images-outline" size={28} color={colors.brand} />
+                <Ionicons name="images-outline" size={28} color={colors.ink} />
                 <Text style={styles.pickButtonText}>Choisir une capture d'écran</Text>
               </Pressable>
             )}
@@ -274,7 +281,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     borderRadius: radius.pill,
   },
-  modeButtonActive: { backgroundColor: colors.brand },
+  modeButtonActive: { backgroundColor: colors.ink },
   modeButtonText: { color: colors.textMuted, fontWeight: "700", fontSize: 12.5 },
   modeButtonTextActive: { color: "#fff" },
   title: { fontSize: 22, fontWeight: "800", color: colors.text },
@@ -299,7 +306,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   quickAction: { flexDirection: "row", alignItems: "center", gap: 6 },
-  quickActionText: { color: colors.brand, fontSize: 13, fontWeight: "700" },
+  quickActionText: { color: colors.ink, fontSize: 13, fontWeight: "700" },
   input: {
     backgroundColor: colors.surface,
     borderWidth: 1,
@@ -321,7 +328,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: spacing.sm,
   },
-  pickButtonText: { color: colors.brand, fontWeight: "700", fontSize: 14 },
+  pickButtonText: { color: colors.ink, fontWeight: "700", fontSize: 14 },
   previewWrap: { alignItems: "center" },
   preview: {
     width: "100%",
@@ -330,9 +337,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceAlt,
   },
   changeImageButton: { flexDirection: "row", alignItems: "center", gap: 6, marginTop: spacing.md },
-  changeImageText: { color: colors.brand, fontSize: 13, fontWeight: "700" },
+  changeImageText: { color: colors.ink, fontSize: 13, fontWeight: "700" },
   checkButton: {
-    backgroundColor: colors.brand,
+    backgroundColor: colors.ink,
     borderRadius: radius.sm,
     paddingVertical: spacing.lg,
     flexDirection: "row",

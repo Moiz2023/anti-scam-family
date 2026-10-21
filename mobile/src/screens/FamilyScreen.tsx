@@ -14,18 +14,15 @@ import {
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
-import { colors, colorForNiveau, softColorForNiveau, labelForNiveau, radius, spacing, shadow } from "../theme/colors";
+import { colors, radius, spacing, shadow } from "../theme/colors";
 import {
   createInviteCode,
   redeemInviteCode,
   fetchProtectedPersons,
   fetchMyProtectors,
-  fetchPendingChecksWithEvents,
-  respondFamilyCheck,
   getSharingConsentStatus,
   revokeSharingConsent,
   type LinkedPerson,
-  type FamilyCheckWithEvent,
 } from "../lib/api";
 import type { AppStackParamList } from "../navigation/RootNavigator";
 
@@ -33,23 +30,19 @@ export default function FamilyScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
   const [protectedPersons, setProtectedPersons] = useState<LinkedPerson[]>([]);
   const [protectors, setProtectors] = useState<LinkedPerson[]>([]);
-  const [pendingChecks, setPendingChecks] = useState<FamilyCheckWithEvent[]>([]);
   const [codeInput, setCodeInput] = useState("");
   const [loading, setLoading] = useState(true);
-  const [busyCheckId, setBusyCheckId] = useState<string | null>(null);
   const [sharingConsent, setSharingConsent] = useState(false);
 
   const loadAll = useCallback(async () => {
     try {
-      const [pp, pr, checks, consent] = await Promise.all([
+      const [pp, pr, consent] = await Promise.all([
         fetchProtectedPersons(),
         fetchMyProtectors(),
-        fetchPendingChecksWithEvents(),
         getSharingConsentStatus(),
       ]);
       setProtectedPersons(pp);
       setProtectors(pr);
-      setPendingChecks(checks);
       setSharingConsent(consent);
     } catch (err) {
       console.error(err);
@@ -109,23 +102,10 @@ export default function FamilyScreen() {
     }
   }
 
-  async function handleRespond(check: FamilyCheckWithEvent, confirmed: boolean) {
-    setBusyCheckId(check.id);
-    try {
-      await respondFamilyCheck(check.id, confirmed);
-      setPendingChecks((prev) => prev.filter((c) => c.id !== check.id));
-    } catch (err) {
-      Alert.alert("Erreur", "Impossible d'enregistrer la réponse.");
-      console.error(err);
-    } finally {
-      setBusyCheckId(null);
-    }
-  }
-
   if (loading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator color={colors.brand} />
+        <ActivityIndicator color={colors.ink} />
       </View>
     );
   }
@@ -134,57 +114,14 @@ export default function FamilyScreen() {
     <ScrollView
       style={{ backgroundColor: colors.background }}
       contentContainerStyle={styles.container}
-      refreshControl={<RefreshControl refreshing={false} onRefresh={loadAll} tintColor={colors.brand} />}
+      refreshControl={<RefreshControl refreshing={false} onRefresh={loadAll} tintColor={colors.ink} />}
     >
       <Text style={styles.title}>Ma famille</Text>
+      <Text style={styles.hint}>
+        Les alertes à confirmer se gèrent depuis l'onglet Activité.
+      </Text>
 
-      {pendingChecks.length > 0 && (
-        <>
-          <SectionHeader icon="warning" label="Alertes à vérifier" color={colors.danger} />
-          {pendingChecks.map((check) => {
-            const event = check.analysis_events;
-            if (!event) return null;
-            const niveauColor = colorForNiveau(event.niveau);
-            return (
-              <View key={check.id} style={[styles.alertCard, { borderColor: niveauColor }]}>
-                <View style={[styles.alertBadge, { backgroundColor: softColorForNiveau(event.niveau) }]}>
-                  <Text style={[styles.alertNiveau, { color: niveauColor }]}>
-                    {labelForNiveau(event.niveau)} — score {event.score}/100
-                  </Text>
-                </View>
-                {event.input_text && (
-                  <Text style={styles.alertText} numberOfLines={3}>
-                    "{event.input_text}"
-                  </Text>
-                )}
-                <Text style={styles.alertQuestion}>
-                  Cette demande est-elle vraiment légitime ?
-                </Text>
-                <View style={styles.alertActions}>
-                  <Pressable
-                    style={[styles.alertButton, { backgroundColor: colors.faible }]}
-                    disabled={busyCheckId === check.id}
-                    onPress={() => handleRespond(check, true)}
-                  >
-                    <Ionicons name="checkmark" size={15} color="#fff" />
-                    <Text style={styles.alertButtonText}>OUI, légitime</Text>
-                  </Pressable>
-                  <Pressable
-                    style={[styles.alertButton, { backgroundColor: colors.danger }]}
-                    disabled={busyCheckId === check.id}
-                    onPress={() => handleRespond(check, false)}
-                  >
-                    <Ionicons name="close" size={15} color="#fff" />
-                    <Text style={styles.alertButtonText}>NON, bloquer</Text>
-                  </Pressable>
-                </View>
-              </View>
-            );
-          })}
-        </>
-      )}
-
-      <SectionHeader icon="shield-checkmark" label="Personnes que je protège" color={colors.brand} />
+      <SectionHeader icon="shield-checkmark" label="Personnes que je protège" color={colors.ink} />
       {protectedPersons.length === 0 && (
         <Text style={styles.empty}>Aucune personne protégée pour l'instant.</Text>
       )}
@@ -205,14 +142,14 @@ export default function FamilyScreen() {
         <Text style={styles.primaryButtonText}>Protéger cette personne</Text>
       </Pressable>
 
-      <SectionHeader icon="heart" label="Qui me protège" color={colors.help} />
+      <SectionHeader icon="heart" label="Qui me protège" color={colors.ink} />
       {protectors.length === 0 && (
         <Text style={styles.empty}>Personne ne te protège encore.</Text>
       )}
       {protectors.map((p) => (
         <PersonRow key={p.id} name={p.full_name ?? "Proche"} />
       ))}
-      <Pressable style={[styles.primaryButton, { backgroundColor: colors.help }]} onPress={handleGenerateCode}>
+      <Pressable style={styles.primaryButton} onPress={handleGenerateCode}>
         <Ionicons name="qr-code" size={16} color="#fff" />
         <Text style={styles.primaryButtonText}>Générer un code d'invitation</Text>
       </Pressable>
@@ -260,7 +197,8 @@ function PersonRow({ name }: { name: string | null }) {
 const styles = StyleSheet.create({
   container: { flexGrow: 1, padding: spacing.xl, paddingTop: 32 },
   centered: { flex: 1, backgroundColor: colors.background, alignItems: "center", justifyContent: "center" },
-  title: { fontSize: 22, fontWeight: "800", color: colors.text, marginBottom: spacing.sm },
+  title: { fontSize: 22, fontWeight: "800", color: colors.text, marginBottom: spacing.xs },
+  hint: { fontSize: 12.5, color: colors.textMuted, marginBottom: spacing.sm },
   sectionHeader: {
     flexDirection: "row",
     alignItems: "center",
@@ -284,11 +222,11 @@ const styles = StyleSheet.create({
     width: 34,
     height: 34,
     borderRadius: radius.pill,
-    backgroundColor: colors.brandSoft,
+    backgroundColor: colors.pillInactive,
     alignItems: "center",
     justifyContent: "center",
   },
-  avatarText: { color: colors.brand, fontWeight: "800", fontSize: 14 },
+  avatarText: { color: colors.ink, fontWeight: "800", fontSize: 14 },
   personName: { fontSize: 15, fontWeight: "600", color: colors.text },
   codeInput: {
     backgroundColor: colors.surface,
@@ -302,7 +240,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
   },
   primaryButton: {
-    backgroundColor: colors.brand,
+    backgroundColor: colors.ink,
     borderRadius: radius.sm,
     paddingVertical: spacing.lg,
     flexDirection: "row",
@@ -324,33 +262,4 @@ const styles = StyleSheet.create({
   consentActiveText: { color: colors.faible, fontSize: 12.5, fontWeight: "600" },
   consentRevokeLink: { color: colors.textMuted, fontSize: 12.5, fontWeight: "600", textDecorationLine: "underline", marginLeft: spacing.sm },
   consentInactiveText: { color: colors.textMuted, fontSize: 12.5, textDecorationLine: "underline" },
-  alertCard: {
-    backgroundColor: colors.surface,
-    borderRadius: radius.md,
-    padding: spacing.lg,
-    marginBottom: spacing.md,
-    borderWidth: 2,
-    ...shadow.card,
-  },
-  alertBadge: {
-    alignSelf: "flex-start",
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 5,
-    marginBottom: spacing.sm,
-  },
-  alertNiveau: { fontWeight: "800", fontSize: 12.5 },
-  alertText: { color: colors.textMuted, fontStyle: "italic", marginBottom: spacing.sm, lineHeight: 19 },
-  alertQuestion: { color: colors.text, fontWeight: "700", marginBottom: spacing.md },
-  alertActions: { flexDirection: "row", gap: spacing.sm },
-  alertButton: {
-    flex: 1,
-    borderRadius: radius.sm,
-    paddingVertical: spacing.md,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 6,
-  },
-  alertButtonText: { color: "#fff", fontWeight: "700", fontSize: 13 },
 });

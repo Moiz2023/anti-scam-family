@@ -192,6 +192,7 @@ export interface RiskEvent {
   raisons: string[];
   created_at: string;
   input_text: string | null;
+  scam_type?: ScamType | null;
 }
 
 export async function fetchFamilyRiskEvents(limit = 50): Promise<RiskEvent[]> {
@@ -200,7 +201,7 @@ export async function fetchFamilyRiskEvents(limit = 50): Promise<RiskEvent[]> {
   // que je protege : exactement le flux d'activite familial recherche.
   const { data, error } = await supabase
     .from("analysis_events")
-    .select("id, protected_id, score, niveau, raisons, created_at, input_text")
+    .select("id, protected_id, score, niveau, raisons, created_at, input_text, scam_type")
     .in("niveau", ["attention", "danger"])
     .order("created_at", { ascending: false })
     .limit(limit);
@@ -223,7 +224,7 @@ export async function fetchPendingChecksWithEvents(): Promise<FamilyCheckWithEve
   const { data, error } = await supabase
     .from("family_checks")
     .select(
-      "id, analysis_event_id, status, created_at, analysis_events(id, protected_id, score, niveau, raisons, created_at, input_text)",
+      "id, analysis_event_id, status, created_at, analysis_events(id, protected_id, score, niveau, raisons, created_at, input_text, scam_type)",
     )
     .eq("status", "pending")
     .order("created_at", { ascending: false });
