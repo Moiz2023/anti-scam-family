@@ -265,3 +265,11 @@ export async function fetchMyProtectors(): Promise<LinkedPerson[]> {
 
   return (profiles ?? []).map((p) => ({ id: p.id, full_name: p.full_name }));
 }
+
+// Droit a l'effacement (RGPD) : supprime le compte de l'utilisateur courant
+// et, par cascade cote serveur, toutes ses donnees (profil, liens
+// familiaux, verifications, alertes, feedback, tokens push).
+export async function deleteMyAccount(): Promise<void> {
+  const { error } = await supabase.functions.invoke("delete-account", { body: {} });
+  if (error) throw error;
+}

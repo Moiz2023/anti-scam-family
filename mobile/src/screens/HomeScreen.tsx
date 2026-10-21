@@ -89,8 +89,8 @@ export default function HomeScreen({ navigation }: Props) {
       <LinearGradient colors={gradients.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.hero}>
         <View style={styles.heroTop}>
           <Text style={styles.heroTitle}>Anti-Scam Family</Text>
-          <Pressable style={styles.logoutIcon} onPress={() => supabase.auth.signOut()}>
-            <Ionicons name="log-out-outline" size={20} color="#fff" />
+          <Pressable style={styles.logoutIcon} onPress={() => navigation.navigate("Account")}>
+            <Ionicons name="settings-outline" size={20} color="#fff" />
           </Pressable>
         </View>
 
