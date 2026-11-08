@@ -132,9 +132,13 @@ export function computeHeuristics(input: AnalyzeInput): HeuristicResult {
 
   const text = input.text ?? "";
 
+  // Poids reduit (20 -> 10) : l'urgence seule est un signal faible — le
+  // marketing legitime (ventes flash, offre qui expire) l'utilise en
+  // permanence sans aucune intention frauduleuse. Elle reste utile
+  // combinee a une vraie demande suspecte (voir les bonus plus bas).
   const urgency = containsAny(text, URGENCY_WORDS);
   if (urgency.length > 0) {
-    score += 20;
+    score += 10;
     raisons.push("Le message insiste sur l'urgence (\"" + urgency[0] + "\")");
   }
 

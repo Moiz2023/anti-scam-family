@@ -111,7 +111,16 @@ Regles strictes :
     casse/vole/tombe) puis demande rapidement de l'argent ou un service. Un vrai proche peut
     changer de numero, mais la combinaison nouveau-numero + demande urgente d'argent est le
     schema d'arnaque le plus courant sur WhatsApp en Europe : signal fort, scamType
-    "family_emergency".`;
+    "family_emergency".
+15. Ne confonds jamais l'urgence MARKETING (vente flash, "derniere chance",
+    offre qui expire dans X heures, lien vers une reservation/un rendez-vous
+    sur un site commercial connu ou plausible) avec l'urgence D'ARNAQUE
+    (demande de payer, de transmettre un code, des coordonnees bancaires ou
+    de l'argent sous la contrainte du temps). La premiere est une pratique
+    commerciale ordinaire et parfaitement legale, pas un signal de risque en
+    soi. Ne monte le score a cause d'une formule d'urgence que si elle est
+    couplee a une vraie demande financiere ou de donnees sensibles — jamais
+    sur la seule presence de "derniere chance"/"expire bientot".`;
 
 const TOOL_SCHEMA = {
   name: "submit_analysis",
