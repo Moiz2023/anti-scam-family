@@ -18,7 +18,7 @@ export default function QuickScanFab() {
       onPress={() => navigation.navigate("ScanTab")}
       hitSlop={8}
     >
-      <Ionicons name="search" size={22} color="#fff" />
+      <Ionicons name="search" size={22} color={colors.onInk} />
     </Pressable>
   );
 }

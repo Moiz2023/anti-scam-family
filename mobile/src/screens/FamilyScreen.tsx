@@ -138,7 +138,7 @@ export default function FamilyScreen() {
         onChangeText={setCodeInput}
       />
       <Pressable style={styles.primaryButton} onPress={handleRedeemCode}>
-        <Ionicons name="link" size={16} color="#fff" />
+        <Ionicons name="link" size={16} color={colors.onInk} />
         <Text style={styles.primaryButtonText}>Protéger cette personne</Text>
       </Pressable>
 
@@ -150,7 +150,7 @@ export default function FamilyScreen() {
         <PersonRow key={p.id} name={p.full_name ?? "Proche"} />
       ))}
       <Pressable style={styles.primaryButton} onPress={handleGenerateCode}>
-        <Ionicons name="qr-code" size={16} color="#fff" />
+        <Ionicons name="qr-code" size={16} color={colors.onInk} />
         <Text style={styles.primaryButtonText}>Générer un code d'invitation</Text>
       </Pressable>
 
@@ -250,7 +250,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.md,
     ...shadow.button,
   },
-  primaryButtonText: { color: "#fff", fontWeight: "700" },
+  primaryButtonText: { color: colors.onInk, fontWeight: "700" },
   consentRow: {
     flexDirection: "row",
     alignItems: "center",

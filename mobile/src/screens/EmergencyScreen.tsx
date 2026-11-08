@@ -116,7 +116,7 @@ export default function EmergencyScreen() {
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <View style={styles.logoBadge}>
-            <Ionicons name="shield-checkmark" size={18} color="#fff" />
+            <Ionicons name="shield-checkmark" size={18} color={colors.onInk} />
           </View>
           <View>
             <Text style={styles.appName}>Anti-Scam Family</Text>
@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  stepBadgeText: { color: "#fff", fontWeight: "800", fontSize: 13 },
+  stepBadgeText: { color: colors.onInk, fontWeight: "800", fontSize: 13 },
   stepTitle: { fontSize: 14.5, fontWeight: "800", color: colors.text, marginBottom: 3 },
   stepBody: { fontSize: 12.5, color: colors.textMuted, lineHeight: 18 },
   stepActionButton: {

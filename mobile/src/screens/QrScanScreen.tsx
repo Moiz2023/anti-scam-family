@@ -88,5 +88,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xxl,
     ...shadow.button,
   },
-  permissionButtonText: { color: "#fff", fontWeight: "700" },
+  permissionButtonText: { color: colors.onInk, fontWeight: "700" },
 });

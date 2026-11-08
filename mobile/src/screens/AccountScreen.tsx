@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
   },
   countryPillActive: { backgroundColor: colors.ink, borderColor: colors.ink },
   countryPillText: { color: colors.text, fontSize: 13, fontWeight: "700" },
-  countryPillTextActive: { color: "#fff" },
+  countryPillTextActive: { color: colors.onInk },
   deleteLinkButton: {
     flexDirection: "row",
     alignItems: "center",

@@ -44,7 +44,7 @@ export default function ConsentScreen({ navigation }: Props) {
   return (
     <ScrollView style={{ backgroundColor: colors.background }} contentContainerStyle={styles.container}>
       <View style={styles.iconBadge}>
-        <Ionicons name="shield-checkmark" size={26} color="#fff" />
+        <Ionicons name="shield-checkmark" size={26} color={colors.onInk} />
       </View>
       <Text style={styles.title}>Avant de partager tes alertes</Text>
       <Text style={styles.subtitle}>
@@ -77,7 +77,7 @@ export default function ConsentScreen({ navigation }: Props) {
 
       <Pressable style={styles.acceptButton} onPress={handleAccept} disabled={loading}>
         {loading ? (
-          <ActivityIndicator color="#fff" />
+          <ActivityIndicator color={colors.onInk} />
         ) : (
           <Text style={styles.acceptButtonText}>Je comprends et j'accepte</Text>
         )}
@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.xl,
     ...shadow.button,
   },
-  acceptButtonText: { color: "#fff", fontSize: 16, fontWeight: "700" },
+  acceptButtonText: { color: colors.onInk, fontSize: 16, fontWeight: "700" },
   cancelButton: { paddingVertical: spacing.md, alignItems: "center", marginTop: spacing.sm },
   cancelButtonText: { color: colors.textMuted, fontSize: 14, fontWeight: "600" },
 });

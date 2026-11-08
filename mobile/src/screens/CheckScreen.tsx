@@ -136,21 +136,21 @@ export default function CheckScreen({ navigation, route }: Props) {
             style={[styles.modeButton, mode === "message" && styles.modeButtonActive]}
             onPress={() => setMode("message")}
           >
-            <Ionicons name="chatbubble-outline" size={14} color={mode === "message" ? "#fff" : colors.textMuted} />
+            <Ionicons name="chatbubble-outline" size={14} color={mode === "message" ? colors.onInk : colors.textMuted} />
             <Text style={[styles.modeButtonText, mode === "message" && styles.modeButtonTextActive]}>Message</Text>
           </Pressable>
           <Pressable
             style={[styles.modeButton, mode === "phone" && styles.modeButtonActive]}
             onPress={() => setMode("phone")}
           >
-            <Ionicons name="call-outline" size={14} color={mode === "phone" ? "#fff" : colors.textMuted} />
+            <Ionicons name="call-outline" size={14} color={mode === "phone" ? colors.onInk : colors.textMuted} />
             <Text style={[styles.modeButtonText, mode === "phone" && styles.modeButtonTextActive]}>Numéro</Text>
           </Pressable>
           <Pressable
             style={[styles.modeButton, mode === "screenshot" && styles.modeButtonActive]}
             onPress={() => setMode("screenshot")}
           >
-            <Ionicons name="image-outline" size={14} color={mode === "screenshot" ? "#fff" : colors.textMuted} />
+            <Ionicons name="image-outline" size={14} color={mode === "screenshot" ? colors.onInk : colors.textMuted} />
             <Text style={[styles.modeButtonText, mode === "screenshot" && styles.modeButtonTextActive]}>Capture</Text>
           </Pressable>
         </View>
@@ -248,10 +248,10 @@ export default function CheckScreen({ navigation, route }: Props) {
 
         <Pressable style={styles.checkButton} onPress={handleCheck} disabled={loading}>
           {loading ? (
-            <ActivityIndicator color="#fff" />
+            <ActivityIndicator color={colors.onInk} />
           ) : (
             <>
-              <Ionicons name="search" size={18} color="#fff" />
+              <Ionicons name="search" size={18} color={colors.onInk} />
               <Text style={styles.checkButtonText}>
                 {mode === "phone" ? "Analyser ce numéro" : mode === "screenshot" ? "Analyser cette capture" : "Analyser ce message"}
               </Text>
@@ -283,7 +283,7 @@ const styles = StyleSheet.create({
   },
   modeButtonActive: { backgroundColor: colors.ink },
   modeButtonText: { color: colors.textMuted, fontWeight: "700", fontSize: 12.5 },
-  modeButtonTextActive: { color: "#fff" },
+  modeButtonTextActive: { color: colors.onInk },
   title: { fontSize: 22, fontWeight: "800", color: colors.text },
   subtitle: { fontSize: 13, color: colors.textMuted, marginTop: spacing.sm, marginBottom: spacing.xl, lineHeight: 18 },
   textarea: {
@@ -349,5 +349,5 @@ const styles = StyleSheet.create({
     marginTop: spacing.xl,
     ...shadow.button,
   },
-  checkButtonText: { color: "#fff", fontSize: 16, fontWeight: "700" },
+  checkButtonText: { color: colors.onInk, fontSize: 16, fontWeight: "700" },
 });

@@ -129,7 +129,7 @@ export default function ActivityScreen() {
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <View style={styles.logoBadge}>
-              <Ionicons name="shield-checkmark" size={18} color="#fff" />
+              <Ionicons name="shield-checkmark" size={18} color={colors.onInk} />
             </View>
             <View>
               <Text style={styles.appName}>Anti-Scam Family</Text>
@@ -375,7 +375,7 @@ const styles = StyleSheet.create({
   },
   pillActive: { backgroundColor: colors.ink },
   pillText: { fontSize: 12.5, fontWeight: "700", color: colors.textMuted },
-  pillTextActive: { color: "#fff" },
+  pillTextActive: { color: colors.onInk },
   emptyCard: { alignItems: "center", paddingVertical: spacing.xxl, gap: spacing.md },
   emptyText: { color: colors.textMuted, fontSize: 13.5, textAlign: "center" },
   card: {

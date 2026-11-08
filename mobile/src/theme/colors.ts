@@ -1,44 +1,53 @@
-// Systeme de design Anti-Scam Family. Palette plus chaleureuse/distinctive
-// qu'un simple bleu/orange/rouge plats : un indigo profond comme couleur de
-// marque, des degrades pour les zones heros/CTA, et une echelle d'espacement
-// coherente reutilisee par tous les ecrans.
+// Systeme de design Anti-Scam Family. Theme sombre (demande explicite :
+// reprendre la palette d'une maquette de reference). Convention dark-mode
+// standard : l'elevation se fait par des surfaces plus CLAIRES que le fond
+// (pas par assombrissement comme en theme clair).
+//
+// "ink" est l'accent clair utilise comme COULEUR DE PREMIER PLAN (icones,
+// liens, etats actifs) sur les fonds sombres. "onInk" est son complement :
+// la couleur de texte/icone a utiliser PAR-DESSUS un fond de la couleur
+// "ink" (boutons pleins, pastilles actives) — les deux ne peuvent pas
+// partager la meme valeur des qu'on est en theme sombre.
 
 export const colors = {
-  background: "#F4F5FA",
-  surface: "#FFFFFF",
-  surfaceAlt: "#EEF0FA",
-  text: "#161A2E",
-  textMuted: "#6B7088",
-  border: "#E4E6F2",
+  background: "#0B0C10",
+  surface: "#17181F",
+  surfaceAlt: "#1F212B",
+  text: "#F3F4F8",
+  textMuted: "#9598AA",
+  border: "#2A2C38",
 
   brand: "#4C3DF2",
   brandDark: "#2E1FB8",
   brandSoft: "#EDEAFF",
 
-  faible: "#1F9D6B",
-  faibleSoft: "#E3F7EE",
-  attention: "#E08A1E",
-  attentionSoft: "#FDF1DD",
-  danger: "#E13B5C",
-  dangerSoft: "#FCE4EA",
+  faible: "#34D399",
+  faibleSoft: "#123524",
+  attention: "#F2A33D",
+  attentionSoft: "#3A2A12",
+  danger: "#F2495F",
+  dangerSoft: "#3A141C",
   help: "#7A4DF2",
   helpSoft: "#F0E9FF",
 
+  // Navy distinct et plus clair que "background" : sert de carte "heros"
+  // mise en avant (ex: carte "Verification rapide" du Dashboard).
   dark: "#17152B",
   darkAlt: "#201D3C",
 
   white: "#FFFFFF",
 
   // Palette "KinShield" (maquette) : utilisee par les ecrans a onglets
-  // (Dashboard / Scan / Activite / Urgence). Noir/blanc dominant, la couleur
-  // sert uniquement a signaler le niveau de risque — jamais de decor.
-  ink: "#13151F",
-  inkSoft: "rgba(19,21,31,0.06)",
-  pillInactive: "#EEF0F6",
-  urgentBg: "#FCE4E4",
-  urgentText: "#C23B3B",
-  safeBg: "#D9F7E6",
-  safeText: "#1C8F5A",
+  // (Dashboard / Scan / Activite / Urgence). La couleur de risque reste le
+  // seul signal decoratif — jamais de decor gratuit.
+  ink: "#F3F4F8",
+  onInk: "#0E0F14",
+  inkSoft: "rgba(243,244,248,0.08)",
+  pillInactive: "#1F212B",
+  urgentBg: "#3A141C",
+  urgentText: "#FF6B81",
+  safeBg: "#123524",
+  safeText: "#4ADE80",
 };
 
 export const gradients = {

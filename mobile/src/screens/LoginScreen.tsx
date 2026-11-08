@@ -43,7 +43,7 @@ export default function LoginScreen({ navigation }: Props) {
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
         <View style={styles.hero}>
           <View style={styles.badge}>
-            <Ionicons name="shield-checkmark" size={26} color="#fff" />
+            <Ionicons name="shield-checkmark" size={26} color={colors.onInk} />
           </View>
           <Text style={styles.title}>Anti-Scam Family</Text>
           <Text style={styles.subtitle}>Le système de sécurité numérique de toute la famille.</Text>
@@ -72,7 +72,7 @@ export default function LoginScreen({ navigation }: Props) {
           />
 
           <Pressable style={styles.button} onPress={handleLogin} disabled={loading}>
-            {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Se connecter</Text>}
+            {loading ? <ActivityIndicator color={colors.onInk} /> : <Text style={styles.buttonText}>Se connecter</Text>}
           </Pressable>
 
           <Pressable onPress={() => navigation.navigate("Register")}>
@@ -138,6 +138,6 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
     ...shadow.button,
   },
-  buttonText: { color: "#fff", fontSize: 16, fontWeight: "700" },
+  buttonText: { color: colors.onInk, fontSize: 16, fontWeight: "700" },
   link: { color: colors.ink, textAlign: "center", marginTop: spacing.xl, fontWeight: "600" },
 });

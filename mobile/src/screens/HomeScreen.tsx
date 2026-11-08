@@ -88,7 +88,7 @@ export default function HomeScreen({ navigation }: Props) {
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <View style={styles.logoBadge}>
-            <Ionicons name="shield-checkmark" size={18} color="#fff" />
+            <Ionicons name="shield-checkmark" size={18} color={colors.onInk} />
           </View>
           <View>
             <Text style={styles.appName}>Anti-Scam Family</Text>
@@ -168,7 +168,7 @@ export default function HomeScreen({ navigation }: Props) {
         </Text>
         <View style={styles.darkCardActionsRow}>
           <Pressable style={styles.analyzeButton} onPress={() => navigation.navigate("ScanTab")}>
-            <Ionicons name="clipboard-outline" size={16} color={colors.ink} />
+            <Ionicons name="clipboard-outline" size={16} color={colors.onInk} />
             <Text style={styles.analyzeButtonText}>Coller & analyser</Text>
           </Pressable>
           <Pressable style={styles.cameraButton} onPress={() => navigation.navigate("QrScan")}>
@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
   trendText: { flex: 1, fontSize: 12.5, color: colors.text, lineHeight: 17 },
   trendTextBold: { fontWeight: "800" },
   darkCard: {
-    backgroundColor: colors.ink,
+    backgroundColor: colors.dark,
     borderRadius: radius.lg,
     padding: spacing.xl,
     marginBottom: spacing.xl,
@@ -304,7 +304,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
     paddingVertical: spacing.lg,
   },
-  analyzeButtonText: { color: colors.ink, fontWeight: "800", fontSize: 14.5 },
+  analyzeButtonText: { color: colors.onInk, fontWeight: "800", fontSize: 14.5 },
   cameraButton: {
     width: 48,
     borderRadius: radius.sm,

@@ -45,7 +45,7 @@ export default function CallFamilyScreen() {
             style={styles.callButton}
             onPress={() => Linking.openURL("tel:").catch(() => undefined)}
           >
-            <Ionicons name="call" size={15} color="#fff" />
+            <Ionicons name="call" size={15} color={colors.onInk} />
             <Text style={styles.callButtonText}>Ouvrir le téléphone</Text>
           </Pressable>
         </View>
@@ -93,5 +93,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 6,
   },
-  callButtonText: { color: "#fff", fontWeight: "700", fontSize: 12.5 },
+  callButtonText: { color: colors.onInk, fontWeight: "700", fontSize: 12.5 },
 });
