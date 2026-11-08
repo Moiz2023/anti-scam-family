@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors, radius, spacing, shadow } from "../theme/colors";
 import { getMyLocale } from "../lib/api";
 import { countryFromLocale, COUNTRY_LABELS, type Country } from "../lib/country";
+import QuickScanFab from "../components/QuickScanFab";
 import type { AppStackParamList } from "../navigation/RootNavigator";
 
 interface Step {
@@ -107,6 +108,7 @@ export default function EmergencyScreen() {
   const STEPS = STEPS_BY_COUNTRY[country];
 
   return (
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
     <ScrollView
       style={{ backgroundColor: colors.background }}
       contentContainerStyle={[styles.container, { paddingTop: insets.top + spacing.lg }]}
@@ -186,6 +188,8 @@ export default function EmergencyScreen() {
         </View>
       ))}
     </ScrollView>
+    <QuickScanFab />
+    </View>
   );
 }
 

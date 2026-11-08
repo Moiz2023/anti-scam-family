@@ -29,6 +29,7 @@ import {
   type FamilyCheckWithEvent,
   type LinkedPerson,
 } from "../lib/api";
+import QuickScanFab from "../components/QuickScanFab";
 import type { AppStackParamList } from "../navigation/RootNavigator";
 
 if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -296,6 +297,7 @@ export default function ActivityScreen() {
           })
         )}
       </ScrollView>
+      <QuickScanFab />
     </View>
   );
 }

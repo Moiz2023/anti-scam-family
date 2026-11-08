@@ -19,6 +19,7 @@ import {
   type CampaignTrend,
 } from "../lib/api";
 import { SCAM_TYPE_LABELS } from "../theme/scamTypes";
+import QuickScanFab from "../components/QuickScanFab";
 import type { TabParamList, AppStackParamList } from "../navigation/RootNavigator";
 
 type Props = CompositeScreenProps<
@@ -78,6 +79,7 @@ export default function HomeScreen({ navigation }: Props) {
   const daysSinceLastAlert = events.length > 0 ? Math.floor((Date.now() - new Date(events[0].created_at).getTime()) / 86400000) : null;
 
   return (
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
     <ScrollView
       style={{ backgroundColor: colors.background }}
       contentContainerStyle={[styles.container, { paddingTop: insets.top + spacing.lg }]}
@@ -216,6 +218,8 @@ export default function HomeScreen({ navigation }: Props) {
         <Text style={styles.callFamilyLinkText}>Appeler un proche maintenant</Text>
       </Pressable>
     </ScrollView>
+    <QuickScanFab />
+    </View>
   );
 }
 
